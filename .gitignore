@@ -1,0 +1,3 @@
+config/initializers/omniauth.rb 
+.swp
+db/development.sqlite3

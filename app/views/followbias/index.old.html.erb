@@ -1,0 +1,7 @@
+<pre>
+<%=@tokens%>
+<%= @follows.size%>
+<% @followers.each do |account| %>
+  <%= render :partial=>"account", :locals=>{:account=> account}%>
+<% end %>
+</pre>

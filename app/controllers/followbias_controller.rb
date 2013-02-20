@@ -1,0 +1,61 @@
+require "resque"
+
+#stub class
+class ProcessUserFriends
+  @queue = :fetchfriends
+  def self.perform(authdata)
+  end
+end
+
+class FollowbiasController < ApplicationController
+  def index
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]  
+    if(!@current_user.nil?)
+
+    authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
+                :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
+                :oauth_token => @current_user['twitter_token'],
+                :oauth_token_secret => @current_user['twitter_secret']}
+
+    Resque.enqueue(ProcessUserFriends, authdata)
+    @follows = []
+    @followers = []
+    #@follows =0
+    #@followers = 0
+    #  @client = Twitter::Client.new(
+    #    :consumer_key => "4FSppuZFL1fVoEEoppv2zQ",
+    #    :consumer_secret => "VocfRmMaIzCjSk5g3QYM1MuZRtaYHk0DGO6aMvGgoE",
+    #    :oauth_token => @current_user['twitter_token'],
+    #    :oauth_token_secret => @current_user['twitter_secret']
+    #  )
+    #  @tokens = {:token => @current_user['twitter_token'], :secret=> @current_user['twitter_secret']}
+    #
+    #
+    #  #get friend IDs
+    #  cursor = -1
+    #  friendship_ids = []
+    #  while cursor != 0 do
+    #    friendships = @client.friend_ids(@client.user.attrs[:id], {:cursor=>cursor})
+    #    cursor = friendships.next_cursor
+    #    friendship_ids.concat friendships.ids
+    #  end
+    #  #friendship_ids = @client.friend_ids.ids
+
+    #  #now get friend info
+    #  head = 0
+    #  more = true
+    #  @follows = friendship_ids
+    #  @followers = []
+    #  while more
+    #    if head + 100 > @follows.size
+    #      more = false
+    #    end
+    #    @followers.concat @client.friendships( @follows[head, 100])
+    #    head += 100
+    #  end
+  
+    else
+     @followers = []
+    end
+  end
+end
