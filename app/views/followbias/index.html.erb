@@ -1,11 +1,12 @@
 <% if current_user %>
+
 <script language="Javascript">
   function fetch_followbias(account){
     jQuery.get("/followbias/show/" + account, function(data){
       $("#showfollowbias").html(data)
     }).error(function(){
-      window.setTimeout(function(){fetch_followbias(account)}, 30000)
-      $("#showfollowbias").html("loading followbias. you may have to wait up to 15 minutes, if you follow lots of people")
+      window.setTimeout(function(){fetch_followbias(account)}, 15000)
+      $("#showfollowbias").html("<img src='http://www.henley-putnam.edu/Portals/_default/Skins/henley/images/loading.gif'/><br/><br/>loading followbias. you may have to wait up to 15 minutes, if you follow lots of people")
     });
   }
 

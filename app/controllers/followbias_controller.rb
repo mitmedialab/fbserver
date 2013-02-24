@@ -12,6 +12,7 @@ class FollowbiasController < ApplicationController
   def show
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     @user = User.find_by_screen_name(params[:id])
+    @friends = @user.all_friends.sort{|a,b| a.gender <=> b.gender}
     return if @user.nil?
     @followbias = @user.followbias
     respond_to do |format|
