@@ -2,7 +2,7 @@ require 'resque'
 require 'twitter'
 require 'json'
 require 'sqlite3'
-require '../models/name_gender.rb'
+require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
 
 class DataObject
@@ -12,13 +12,16 @@ class DataObject
   end
 
   def save_account(account)
+    puts "SAVE ACCT"
     if(@db.get_first_row("select 1 from accounts where screen_name='#{account.screen_name}'").nil?)
+      puts account.screen_name
       @db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
     end
   end
 
   def save_friends(uid, all_follow_data)
-    return nil if @db.get_first_row("select * from users where uid=#{uid} AND updated_at < DATE('now','-1 minute');").nil?
+    #return nil if @db.get_first_row("select * from users where uid=#{uid} AND updated_at < DATE('now','-1 minute');").nil?
+    puts "SAVING FRIENDS"
     friends = all_follow_data.collect{|account| account.attrs[:id]}.to_json
     all_follow_data.each{|account| self.save_account(account)}
     @db.execute("update users set friends='#{friends}', updated_at=DATE('now') where uid = #{uid}");
@@ -74,6 +77,7 @@ class ProcessUserFriends
    ### ==>
    db = DataObject.new
    db.save_friends(client.user.attrs[:id], all_follow_data)
+   puts "FRIENDS SAVED"
   end
 
   def self.catch_rate_limit

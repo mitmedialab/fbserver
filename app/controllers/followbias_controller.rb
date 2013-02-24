@@ -8,6 +8,22 @@ class ProcessUserFriends
 end
 
 class FollowbiasController < ApplicationController
+  
+  def show
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]  
+    @user = User.find_by_screen_name(params[:id])
+    return if @user.nil?
+    @followbias = @user.followbias
+    respond_to do |format|
+      format.html
+      format.json{
+        render :json => @followbias
+      }
+    end
+    #TODO: show only yourself
+    #return if @current_user!=@user
+  end
+
   def index
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     if(!@current_user.nil?)

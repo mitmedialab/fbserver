@@ -1,11 +1,29 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  provider: MyString
-  uid: MyString
-  name: MyString
+  provider: twitter
+  uid: 101
+  name: Kim Kierkegaardashian
+  screen_name: kimkierkegaard
+  friends: !str '["001","002","003","005"]'
 
 two:
-  provider: MyString
-  uid: MyString
-  name: MyString
+  provider: twitter
+  uid: 102
+  name: Clark Kent
+  screen_name: clarkkent
+  friends: !str '["001","002","003","004"]'
+
+three:
+  provider: twitter
+  uid: 103
+  name: Jane Austen
+  screen_name: janeausten
+  friends: !str '["001","002","004","005"]'
+
+four:
+  provider: twitter
+  uid: 104
+  name: No Friends
+  screen_name: nofriends
+  friends: ""
