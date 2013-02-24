@@ -9,4 +9,10 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, bias[:female]
     assert_equal 1, bias[:unknown]
   end
+
+  test "all friends" do
+    friends = users(:one).all_friends
+    assert_equal 4, friends.size
+    assert friends.include? accounts(:one)
+  end
 end

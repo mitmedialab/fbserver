@@ -13,10 +13,14 @@ class User < ActiveRecord::Base
     end
   end
 
+  def all_friends
+    Account.find(:all, :conditions=>['uuid IN (?)', JSON.parse(self.friends)])
+  end
+
   def followbias
     return nil if self.friends.nil? or self.friends == ""
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
-    Account.find(:all, :conditions=>['uuid IN (?)', JSON.parse(self.friends)]).each do |account|
+    self.all_friends.each do |account|
       score[:male] += 1 if account.gender=="Male"
       score[:female] += 1 if account.gender == "Female"
       score[:total_following] += 1
