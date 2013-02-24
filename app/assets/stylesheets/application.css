@@ -11,3 +11,46 @@
  *= require_self
  *= require_tree .
  */
+
+.twitter{
+  font-family:sans-serif;
+  display:inline-block; 
+  width:180px;
+  height:30px;
+  margin-right:5px;
+  margin-bottom:5px;
+  padding:2px;
+  border-radius:2px;
+}
+
+.twitter a{
+  text-decoration:none;
+  color:#999;
+}
+
+.twitter .name{
+  font-size:16px;
+}
+
+.twitter .account{
+  font-size:12px;
+  display:block;
+}
+
+.twitter.Female{
+  background:#Fcc;
+}
+.twitter.Female a{
+  color: #f33;
+}
+
+.twitter.Male{
+  background:#cdf;
+}
+.twitter.Male a{
+  color:#36f;
+}
+
+.twitter.Unknown{
+  background:#eee;
+}

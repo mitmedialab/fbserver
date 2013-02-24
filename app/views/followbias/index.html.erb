@@ -1,2 +1,16 @@
-<pre>
-</pre>
+<% if current_user %>
+<script language="Javascript">
+  function fetch_followbias(account){
+    jQuery.get("/followbias/show/" + account, function(data){
+      $("#showfollowbias").html(data)
+    }).error(function(){
+      window.setTimeout(function(){fetch_followbias(account)}, 30000)
+      $("#showfollowbias").html("loading followbias. you may have to wait up to 15 minutes, if you follow lots of people")
+    });
+  }
+
+  fetch_followbias("<%=current_user.screen_name%>")
+</script>
+
+<div id="showfollowbias"></div>
+<% end %>

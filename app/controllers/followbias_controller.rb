@@ -15,7 +15,9 @@ class FollowbiasController < ApplicationController
     return if @user.nil?
     @followbias = @user.followbias
     respond_to do |format|
-      format.html
+      format.html{
+        render :layout=> false
+      }
       format.json{
         render :json => @followbias
       }
@@ -32,8 +34,9 @@ class FollowbiasController < ApplicationController
                 :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                 :oauth_token => @current_user['twitter_token'],
                 :oauth_token_secret => @current_user['twitter_secret']}
-
-    Resque.enqueue(ProcessUserFriends, authdata)
+    if(@current_user.friends.nil? or @current_user.friends=="")
+      Resque.enqueue(ProcessUserFriends, authdata)
+    end
     @follows = []
     @followers = []
     #@follows =0

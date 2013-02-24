@@ -1,3 +1,1 @@
-<pre>
-<%=@followbias%>
-</pre>
+<%= render :partial=>"account", :collection => @user.all_friends%>
