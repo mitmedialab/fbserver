@@ -11,6 +11,25 @@ class DataObject
     @name_gender = NameGender.new
   end
 
+  def strip_redundant_accounts id_list
+    more = true
+    head = 0
+    return_list = []
+    while more
+      if head + 100 > id_list.size
+        more = false
+      end
+      rows = @db.execute("select id from accounts WHERE id IN (#{id_list[head, 100].join(",")});").collect {|x|x[0]}
+
+      puts "#{rows.size} rows returned"
+      id_list[head, 100].each do |id|
+        return_list << id unless rows.include? id
+      end
+      head += 100
+    end
+    return_list
+  end
+
   def save_account(account)
     puts "SAVE ACCT"
     if(@db.get_first_row("select 1 from accounts where screen_name='#{account.screen_name}'").nil?)
@@ -33,6 +52,7 @@ class ProcessUserFriends
   @queue = :fetchfriends
 
   def self.perform(authdata)
+    db = DataObject.new
     # symbolise keys
     authdata.keys.each do |key|
       authdata[(key.to_sym rescue key) || key] = authdata.delete(key)
@@ -55,6 +75,11 @@ class ProcessUserFriends
     head = 0
     more = true
     follows = friendship_ids
+
+    puts "checking redundant accounts"
+    follows = db.strip_redundant_accounts follows
+    puts "fetching friendship data for #{follows.size} accounts"
+
     all_follow_data = []
 
     puts "fetching friendship data"
@@ -75,7 +100,6 @@ class ProcessUserFriends
     end
 
    ### ==>
-   db = DataObject.new
    db.save_friends(client.user.attrs[:id], all_follow_data)
    puts "FRIENDS SAVED"
   end
