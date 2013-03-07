@@ -19,9 +19,8 @@ class DataObject
       if head + 100 > id_list.size
         more = false
       end
-      rows = @db.execute("select id from accounts WHERE id IN (#{id_list[head, 100].join(",")});").collect {|x|x[0]}
+      rows = @db.execute("select uuid from accounts WHERE uuid IN (#{id_list[head, 100].join(",")});").collect {|x|x[0]}
 
-      puts "#{rows.size} rows returned"
       id_list[head, 100].each do |id|
         return_list << id unless rows.include? id
       end
