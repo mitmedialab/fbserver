@@ -3,3 +3,4 @@
 export RESQUE_WORKER=true
 QUEUE=fetchfriends rake resque:work
 
+
