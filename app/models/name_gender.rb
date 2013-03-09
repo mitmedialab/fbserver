@@ -16,7 +16,7 @@ class NameGender
       score = { :result => "", :counts => 0 }
 
       ## REFACTORING UP TO THIS POINT
-      if (name.is_a? String)
+      if (name.is_a? String and name!="")
         first_name = name.split(" ")[0].downcase
       else
         first_name = nil

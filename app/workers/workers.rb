@@ -7,7 +7,7 @@ require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
 class DataObject
   def initialize()
-    @db = SQLite3::Database.new("db/development.sqlite3")
+    @db = SQLite3::Database.new(File.join(File.dirname(__FILE__), "../../db/development.sqlite3"))
     @name_gender = NameGender.new
   end
 
@@ -30,10 +30,13 @@ class DataObject
   end
 
   def save_account(account)
-    puts "SAVE ACCT"
-    if(@db.get_first_row("select 1 from accounts where screen_name='#{account.screen_name}'").nil?)
-      puts account.screen_name
-      @db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
+    begin
+      if(@db.get_first_row("select 1 from accounts where screen_name='#{account.screen_name}'").nil?)
+        @db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
+      end
+    rescue SQLite3::BusyException => error
+      sleep(1)
+      retry
     end
   end
 
@@ -103,7 +106,7 @@ class ProcessUserFriends
       break if new_follows.size == 0
 
       all_follow_data.concat self.catch_rate_limit{
-        client.friendships(new_follows[head, 100])
+        client.users(new_follows[head, 100])
       }
       head += 100
       print "."
@@ -132,8 +135,10 @@ class ProcessUserFriends
       else
         retry
       end
+    rescue Twitter::Error::ServiceUnavailable => error
+      sleep(5)
+      retry
     end
   end
-
 
 end
