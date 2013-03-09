@@ -1,29 +1,29 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
+  id: 1
   provider: twitter
   uid: 101
   name: Kim Kierkegaardashian
   screen_name: kimkierkegaard
-  friends: !str '["001","002","003","005"]'
 
 two:
+  id: 2
   provider: twitter
   uid: 102
   name: Clark Kent
   screen_name: clarkkent
-  friends: !str '["001","002","003","004"]'
 
 three:
+  id: 3
   provider: twitter
   uid: 103
   name: Jane Austen
   screen_name: janeausten
-  friends: !str '["001","002","004","005"]'
 
 four:
+  id: 4
   provider: twitter
   uid: 104
   name: No Friends
   screen_name: nofriends
-  friends: ""

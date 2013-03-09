@@ -37,12 +37,19 @@ class DataObject
     end
   end
 
-  def save_friends(uid, all_follow_data)
-    #return nil if @db.get_first_row("select * from users where uid=#{uid} AND updated_at < DATE('now','-1 minute');").nil?
+  def save_friends(uid, all_follow_data, friends)
     puts "SAVING FRIENDS"
-    friends = all_follow_data.collect{|account| account.attrs[:id]}.to_json
+    #friends = all_follow_data.collect{|account| account.attrs[:id]}.to_json
     all_follow_data.each{|account| self.save_account(account)}
-    @db.execute("update users set friends='#{friends}', updated_at=DATE('now') where uid = #{uid}");
+    user_id = @db.get_first_row("select id from users where uid=#{uid}")
+    query = "insert into friendsrecords(user_id, friends, created_at, updated_at) values(#{user_id[0]}, '#{friends.to_json}', DATETIME('now'), DATETIME('now'));"
+ 
+    puts query
+    @db.execute(query)
+  end
+
+  def too_soon client
+    @db.get_first_row("select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{client.user.attrs[:id]} AND friendsrecords.created_at > DATETIME('now','-6 hours');")
   end
 
 end
@@ -60,7 +67,13 @@ class ProcessUserFriends
     cursor = -1
     friendship_ids = []
     puts "fetching friendship ids"
-    puts client.user.attrs[:id]
+    #puts client.user.attrs[:id]
+
+    if db.too_soon client
+      puts "TOO SOON: #{db.too_soon client}"
+      return nil
+    end
+
     while cursor != 0 do
       friendships = self.catch_rate_limit {
         client.friend_ids(client.user.attrs[:id], {:cursor=>cursor})
@@ -76,18 +89,21 @@ class ProcessUserFriends
     follows = friendship_ids
 
     puts "checking redundant accounts"
-    follows = db.strip_redundant_accounts follows
+    new_follows = db.strip_redundant_accounts follows
     puts "fetching friendship data for #{follows.size} accounts"
 
     all_follow_data = []
 
     puts "fetching friendship data"
     while more
-      if head + 100 > follows.size
+      if head + 100 > new_follows.size
         more = false
       end
+
+      break if new_follows.size == 0
+
       all_follow_data.concat self.catch_rate_limit{
-        client.friendships(follows[head, 100])
+        client.friendships(new_follows[head, 100])
       }
       head += 100
       print "."
@@ -99,7 +115,7 @@ class ProcessUserFriends
     end
 
    ### ==>
-   db.save_friends(client.user.attrs[:id], all_follow_data)
+   db.save_friends(client.user.attrs[:id], all_follow_data, follows)
    puts "FRIENDS SAVED"
   end
 

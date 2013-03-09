@@ -1,6 +1,7 @@
 require 'json'
 class User < ActiveRecord::Base
   attr_accessible :name, :provider, :uid
+  has_many :friendsrecords
   def self.create_with_omniauth(auth)
     create! do |user|
       user.provider = auth["provider"]
@@ -14,11 +15,15 @@ class User < ActiveRecord::Base
   end
 
   def all_friends
-    Account.find(:all, :conditions=>['uuid IN (?)', JSON.parse(self.friends)])
+    unless self.friendsrecords.last.nil?
+      Account.find(:all, :conditions=>['uuid IN (?)', JSON.parse(self.friendsrecords.last.friends)]) 
+    else
+      []
+    end
   end
 
   def followbias
-    return nil if self.friends.nil? or self.friends == ""
+    return nil if self.friendsrecords.last.nil? or self.friendsrecords.last.friends == ""
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
     self.all_friends.each do |account|
       score[:male] += 1 if account.gender=="Male"
