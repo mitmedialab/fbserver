@@ -1,6 +1,6 @@
 require 'json'
 class User < ActiveRecord::Base
-  attr_accessible :name, :provider, :uid
+  attr_accessible :name, :provider, :uid, :screen_name, :twitter_token, :twitter_secret
   has_many :friendsrecords
   def self.create_with_omniauth(auth)
     create! do |user|
