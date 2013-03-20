@@ -5,6 +5,7 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
+  id: 1
   uuid: 001
   screen_name: maleperson
   name: Kent Clark
@@ -12,6 +13,7 @@ one:
   profile_image_url:
   
 two:
+  id: 2
   uuid: 002
   screen_name: femaleperson
   name: Louis Lane
@@ -19,6 +21,7 @@ two:
   profile_image_url:
 
 three:
+  id: 3
   uuid: 003
   screen_name: corporation
   name: Cyberdyne Systems
@@ -26,6 +29,7 @@ three:
   profile_image_url:
 
 four:
+  id: 4
   uuid: 004
   screen_name: malepersontwo
   name: William Shakespeare
@@ -33,6 +37,7 @@ four:
   profile_image_url:
 
 five:
+  id: 5
   uuid: 005
   screen_name: femalepersontwo
   name: Elizabeth The First
