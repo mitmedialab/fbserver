@@ -43,6 +43,12 @@ class FollowbiasController < ApplicationController
 
     render :json => {:account => @account.screen_name, :gender=> @account.gender}
   end
+  
+  def start
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]  
+    redirect_to :controller=>"followbias", :action=>"index" and return if @current_user
+    render :layout=>"start"
+  end
 
   def index
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
