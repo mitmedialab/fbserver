@@ -50,8 +50,15 @@ class FollowbiasController < ApplicationController
     render :layout=>"start"
   end
 
+  def main
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]  
+    #redirect_to "/" and return if @current_user.nil?
+    render :layout=>"main"
+  end
+
   def index
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
+    redirect_to "/" and return if @current_user.nil?
     if(!@current_user.nil?)
 
       authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],

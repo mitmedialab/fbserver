@@ -14,7 +14,7 @@ function drawpie(){
 	cx = window.innerWidth/2.0
 	cy = window.innerHeight/2.0 + 120;
 
-	circle = canvas.circle(cx, cx, 10);
+	circle = canvas.circle(cx, cy, 10);
 	circle.attr("fill", "#f00");
 
 	sector(canvas, cx, cy, 900, -10, 75, {fill: "rgb(211,113,136)", "stroke-width": 0});

@@ -1,0 +1,43 @@
+.topbar{
+  z-index:1000;
+  position:fixed;
+  top:0px;
+  width:100%;
+  text-align:center;
+  color:#fff;
+  background:#333);
+  -webkit-box-shadow: 0 4px 8px -2px #000000;
+     -moz-box-shadow: 0 4px 8px -2px #000000;
+          box-shadow: 0 4px 8px -2px #000000;
+}
+
+.topbar .words{
+
+}
+.topbar span.baritem{
+  z-index:1010;
+}
+
+.brand{
+  position: relative;
+  z-index:1100;
+}
+
+.brand span{
+  color:white;
+  display:inline-block;
+  position:absolute;
+  font-weight:bold;
+  font-size:18px;
+  opacity:0.7;
+}
+
+.brand .men{
+  top:2px;
+  left:37px;
+}
+
+.brand .women{
+  top:2px;
+  left:120px;
+}

@@ -12,6 +12,12 @@
  *= require_tree .
  */
 
+body{
+  margin:0px;
+  padding:0px;
+  background:rgb(91,91,91);
+}
+
 .twitter{
   font-family:sans-serif;
   display:inline-block; 
