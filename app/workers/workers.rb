@@ -46,7 +46,7 @@ class DataObject
     #friends = all_follow_data.collect{|account| account.attrs[:id]}.to_json
     all_follow_data.each{|account| self.save_account(account)}
     user_id = @db.query("select id from users where uid=#{uid}").first["id"]
-    query = "insert into friendsrecords(user_id, friends, created_at, updated_at) values(#{user_id[0]}, '#{friends.to_json}',NOW(),NOW());"
+    query = "insert into friendsrecords(user_id, friends, created_at, updated_at) values(#{user_id}, '#{friends.to_json}',NOW(),NOW());"
  
     puts query
     @db.query(query)
