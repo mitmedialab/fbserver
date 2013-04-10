@@ -5,6 +5,7 @@ class UserTest < ActiveSupport::TestCase
   test "all friends" do
     friends = users(:one).all_friends
     assert_equal 4, friends.size
+    assert_equal accounts(:three).uuid, friends[0].uuid #verify sorting
     assert friends.include? accounts(:one)
   end
 

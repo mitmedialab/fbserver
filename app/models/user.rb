@@ -17,7 +17,8 @@ class User < ActiveRecord::Base
 
   def all_friends
     unless self.friendsrecords.last.nil?
-      Account.find(:all, :conditions=>['uuid IN (?)', JSON.parse(self.friendsrecords.last.friends)]) 
+      #sort by occurrence of ' ' to prioritise likely miscategorised accounts
+      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends)).order("INSTR(name,' ') DESC")
     else
       []
     end
