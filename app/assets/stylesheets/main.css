@@ -14,8 +14,7 @@ svg{
   width:100%;
   height:100%;  
   bottom:0px;
-  background:black;
-/*  background:rgb(211,113,136);*/
+  background:rgb(91,91,91);
 }
 
 #content{
@@ -113,12 +112,11 @@ svg{
 }
 
 .brand span{
-  color:white;
+  color:#eee;
   display:inline-block;
   position:absolute;
   font-weight:bold;
   font-size:18px;
-  opacity:0.8;
   text-shadow:1px 1px 1px #666;
 }
 
@@ -144,7 +142,7 @@ svg{
   margin-bottom:20px;
 }
 
-#content .row:nth-child(2n+2){
+#content .row:nth-child(2n+1){
   background:rgb(82,82,82);
 }
 
@@ -163,3 +161,97 @@ svg{
   border-color:#aaa;
 }
 
+.correct_account{
+  margin: 0 auto;
+  background:rgb(82,82,82);
+  border-radius:5px;
+  padding:10px;
+  margin-bottom:5px;
+  position:relative;
+  width:80%;
+}
+
+.correct_account img{
+  border-radius:5px;
+  vertical-align:top;
+}
+
+.correct_account .account{
+  display:inline-block;
+  margin-left:10px;
+}
+
+.correct_account .screen_name{
+  display:block;
+  font-family: 'Lato', sans-serif;
+  color:white;
+  font-size:11pt;
+}
+
+.correct_account a.screen_name:hover{
+  text-decoration:none;
+}
+
+.correct_account .name{
+  display:block;
+  font-family: "Lora", serif;
+  font-size:11pt;
+}
+
+.correct_account .corrections{
+  position:absolute;
+  right:0px;
+  margin-right:10px;
+}
+
+.correction{
+  display:inline-block;
+  font-family: 'Lato', sans-serif;
+  font-size:20px;
+  font-weight:bold;
+  color:white;
+  width:40px;
+  height:40px;
+  background:rgb(91,91,91);
+  border-radius:30px;
+  text-align:center;
+  line-height:40px;
+  margin:5px;
+  margin-left:10px;
+  cursor:pointer;
+}
+
+.correction.m{
+  background:rgb(113,121,132);
+}
+
+.correction.f{
+  background:rgb(152,116,124);
+}
+
+.correction.x{
+  background:rgb(41,41,41);
+}
+
+.correction.selected{
+  border:5px solid white;
+  box-shadow:0px 0px 10px #aaa;
+  margin:0px;
+  margin-left:5px;
+}
+
+.correction.m.selected{
+  background:rgb(143,159,182);
+}
+
+.correction.f.selected{
+  background:rgb(222,149,166);
+}
+
+.correction.b.selected{
+  background:rgb(130,130,130);
+}
+
+.correction.x.selected{
+  background:#363636;
+}
