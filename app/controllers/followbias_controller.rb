@@ -12,9 +12,9 @@ class FollowbiasController < ApplicationController
   def show
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     @user = User.find_by_screen_name(params[:id])
-    @friends = @user.all_friends.sort{|a,b| a.gender <=> b.gender}
     redirect_to "/" and return if @user.nil?
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
+    @friends = @user.all_friends.sort{|a,b| a.gender <=> b.gender}
     @followbias = @user.followbias
     respond_to do |format|
       format.html{
@@ -24,8 +24,27 @@ class FollowbiasController < ApplicationController
         render :json => @followbias
       }
     end
-    #TODO: show only yourself
-    #return if @current_user!=@user
+  end
+
+  def show_page
+
+    page_size = 20 
+    
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    @user = User.find_by_screen_name(params[:id])
+    redirect_to "/" and return if @user.nil? or params[:page].nil?
+    redirect_to "/" and return if @current_user.nil? or @current_user != @user
+
+    @friends = @user.all_friends_paged(page_size, page_size * params[:page].to_i)
+
+    next_page = params[:page].to_i + 1
+    next_page = nil if @friends.size == 0
+
+    respond_to do |format|
+      format.json{
+        render :json => {:friends=>@friends, :next_page=>next_page, :page_size => page_size}
+      }
+    end
   end
 
   def correct
@@ -33,8 +52,8 @@ class FollowbiasController < ApplicationController
     render :json =>{:status=>"error"} and return if @current_user.nil?
     #redirect_to "/" and return if @current_user.nil?
 
-    @account = Account.find_by_screen_name(params[:screen_name])
-    render :json =>{:status=>"error"} and return if @account.nil?
+    @account = Account.find_by_uuid(params[:id])
+    render :json =>{:status=>"error", :params=>params} and return if @account.nil?
     #redirect_to "/" and return if @account.nil?
     
     if ["Female", "Male", "Unknown"].include? params[:gender]

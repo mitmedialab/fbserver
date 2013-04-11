@@ -9,6 +9,12 @@ class UserTest < ActiveSupport::TestCase
     assert friends.include? accounts(:one)
   end
 
+  test "all friends paged" do
+    friends = users(:one).all_friends_paged(2, 1)
+    assert_equal 2, friends.size
+    assert_not_equal accounts(:three).uuid, friends[0].uuid
+  end
+
   test "follow bias" do
     assert_equal nil,  users(:four).followbias
     bias = users(:one).followbias

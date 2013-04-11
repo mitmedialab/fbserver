@@ -13,7 +13,7 @@
   <div id="foreground">
     <div class="contents">
 			<h1 id="chapter_one" class="chapter">Episode 1 &mdash; Gender</h1>
-			<h2 id="personal_see" class="subheading">On Twitter, who does @natematias see?</h2>
+			<h2 id="personal_see" class="subheading">On Twitter, who does <%=current_user.screen_name%> see?</h2>
     </div>
   </div>
   <div id="background">
@@ -49,8 +49,18 @@
       <hr/>
       <p>Right now, we're trying to improve our data quality, and you can help by fixing any miscategorized followers below. You'll see your own score get more accurate as you work. Just click on the correct category.</p>
 
+      <div class="label_row">
+				<div class="label gender_label Male"><span class="value"></span> Men</div>
+				<div class="label gender_label Female"><span class="value"></span> Women</div>
+				<div class="label gender_label Unknown"><span class="value"></span> Brands &amp; Bots</div>
+				<div class="label gender_label Omit"><span class="value"></span> Omitted</div>
+      </div>
+      <div class="next-page"><div class="arrow-right"> </div></div>
+      <div class="prev-page"><div class="arrow-left"> </div></div>
+      <div id="accounts_page"></div>
+
       <!-- begin account correction entry --> 
-      <div class="correct_account">
+<!--      <div class="correct_account">
 				<img src="http://twimg0-a.akamaihd.net/profile_images/53907183/P1000090_normal.jpg"/>
         <span class="account">
 			    <span class="name">dearsarah</span>
@@ -62,52 +72,7 @@
 					<div class="correction b selected">B</div>
 					<div class="correction x">X</div>
        </span>
-			</div>
-
-      <!-- begin account correction entry --> 
-      <div class="correct_account">
-				<img src="http://twimg0-a.akamaihd.net/profile_images/293368623/jh2008_normal.jpg"/>
-        <span class="account">
-			    <span class="name">James Home</span>
-					<a class="screen_name" href="https://twitter.com/jameshome">@jameshome</a> 
-        </span>
-        <span class="corrections">
-					<div class="correction m selected">M</div>
-					<div class="correction f ">F</div>
-					<div class="correction b ">B</div>
-					<div class="correction x ">X</div>
-       </span>
-			</div>
-
-      <!-- begin account correction entry --> 
-      <div class="correct_account">
-				<img src="http://twimg0-a.akamaihd.net/profile_images/312490233/facebook_normal.jpg"/>
-        <span class="account">
-			    <span class="name">Irene Ros</span>
-					<a class="screen_name" href="https://twitter.com/ireneros">@ireneros</a> 
-        </span>
-        <span class="corrections">
-					<div class="correction m">M</div>
-					<div class="correction f selected">F</div>
-					<div class="correction b ">B</div>
-					<div class="correction x ">X</div>
-       </span>
-			</div>
-
-      <!-- begin account correction entry --> 
-      <div class="correct_account">
-				<img src="http://twimg0-a.akamaihd.net/profile_images/1407243488/logo_normal.png"/>
-        <span class="account">
-			    <span class="name">Ctr for Civic Media</span>
-					<a class="screen_name" href="https://twitter.com/civicmit">@CivicMIT</a> 
-        </span>
-        <span class="corrections">
-					<div class="correction m">M</div>
-					<div class="correction f">F</div>
-					<div class="correction b selected">B</div>
-					<div class="correction x ">X</div>
-       </span>
-			</div>
+			</div>-->
 
     </div>
   </div>
@@ -121,6 +86,22 @@
   </div>
 
 </div>
+
+<script id="correct_account_template" type="text/template">
+	<div class="correct_account" data-id="{{=account.uuid}}">
+		<img src="{{=account.profile_image_url}}"/>
+		<span class="account">
+			<span class="name">{{=account.name}}</span>
+			<a class="screen_name" href="https://twitter.com/{{=account.screen_name}}">@{{=account.screen_name}}</a>
+		</span>
+		<span class="corrections">
+			<div class="correction Male {{if(account.gender=="Male"){ }}selected{{ } }}" data-gender="Male">M</div>
+			<div class="correction Female {{if(account.gender=="Female"){ }}selected{{ } }}" data-gender="Female">F</div>
+			<div class="correction Unknown {{if(account.gender=="Unknown"){ }}selected{{ } }}" data-gender="Unknown">B</div>
+			<div class="correction Omit" data-gender="Omit">X</div>
+	 </span>
+	</div>
+</script>
 
 <script type="text/javascript" language="Javascript">
   var followbias_screen_name = "<%=current_user.screen_name%>";

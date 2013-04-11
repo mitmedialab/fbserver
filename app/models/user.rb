@@ -18,7 +18,16 @@ class User < ActiveRecord::Base
   def all_friends
     unless self.friendsrecords.last.nil?
       #sort by occurrence of ' ' to prioritise likely miscategorised accounts
-      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends)).order("INSTR(name,' ') DESC")
+      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends)).order("gender")
+    else
+      []
+    end
+  end
+
+  def all_friends_paged(limit,offset)
+    unless self.friendsrecords.last.nil?
+      #sort by occurrence of ' ' to prioritise likely miscategorised accounts
+      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends)).order("INSTR(name,' ') ASC").limit(limit).offset(offset)
     else
       []
     end

@@ -1,6 +1,69 @@
-var FollowBias = Backbone.View.extend({
-  el:"background",
+_.templateSettings = {
+    interpolate: /\{\{\=(.+?)\}\}/g,
+    evaluate: /\{\{(.+?)\}\}/g
+};
+
+var AccountCorrections = Backbone.View.extend({
+  el:"#help",
   events:{
+    "click .correction" : "correct_account",
+    "click .arrow-left" : "prev_page",
+    "click .arrow-right": "next_page"
+  },
+  
+  initialize: function(){
+    this.correct_account_template = _.template($("#correct_account_template").html());
+    $(".prev-page").hide();
+  },
+
+  next_page: function(){
+    $(".prev-page").show();
+    this.fetch_corrections_page(this.current_page+1);
+  },
+
+  prev_page: function(){
+
+    $(".next-page").show();
+
+    if(this.current_page >0){
+      this.fetch_corrections_page(this.current_page-1);
+    }
+  },
+
+  correct_account: function(e){
+    el = $(e.target);
+    p = el.parent().parent();
+    p.find(".correction").removeClass("selected"); 
+    el.toggleClass("selected");
+    jQuery.post("/followbias/correct", {id: p.attr("data-id"), gender:el.attr("data-gender"), authenticity_token: AUTH_TOKEN}, function(data){
+      console.log(data);
+    });
+  },
+
+  fetch_corrections_page: function(page){
+    that = this;
+    this.current_page = page;
+    jQuery.get("/followbias/show_page/" + followbias_screen_name + ".json?page=" + page, function(data){
+      if(data!=null){
+        that.pages = data;
+        if(_.size(that.pages.friends) > 0){
+          $("#accounts_page").html("");
+					_.each(that.pages.friends, function(d){
+						$("#accounts_page").append(that.correct_account_template({account:d}));
+					});
+        }else{
+          $(".next-page").hide();
+        }
+      }else{
+      }
+    });
+  }
+});
+
+var FollowBias = Backbone.View.extend({
+  el:"#background",
+  events:{
+/*    "click .correction": "correct_account"*/
   },
   
   initialize: function(){
@@ -8,6 +71,7 @@ var FollowBias = Backbone.View.extend({
     this.topbar_down = false
     this.followbias_data = null;
     this.canvas = Raphael("background", "100%", "100%");
+
     this.render();
     $(window).bind("resize.app", _.bind(this.render, this));
     $(window).bind("scroll", _.bind(this.scroll, this));
@@ -18,7 +82,9 @@ var FollowBias = Backbone.View.extend({
       this.render_base_circle();
       this.start_spinner();
       this.fetch_followbias();
+      account_corrections.fetch_corrections_page(0);
     }else{
+   //   this.spinner.stop();
       this.render_glasses();
     }
   },
@@ -27,8 +93,8 @@ var FollowBias = Backbone.View.extend({
     that = this;
     jQuery.get("/followbias/show/" + followbias_screen_name + ".json", function(data){
       if(data!=null){
-        that.followbias_data = data;
-        that.render();
+        follow_bias.followbias_data = data;
+        follow_bias.render();
       }else{
         window.setTimeout(function(){follow_bias.fetch_followbias()}, 15000)
       }
@@ -37,6 +103,19 @@ var FollowBias = Backbone.View.extend({
     });
 
   },
+
+  /*fetch_corrections_page: function(){
+    that = this;
+    jQuery.get("/followbias/show_page/" + followbias_screen_name + ".json?page=0", function(data){
+      if(data!=null){
+        that.pages = data;
+        _.each(that.pages.friends, function(d){
+          $("#help .section").append(that.correct_account_template({account:d}));
+        });
+      }else{
+      }
+    });
+  },*/
 
   generate_dimensions: function(){
     pie_rad_width = (window.innerWidth * 0.5) * 0.75
@@ -154,11 +233,16 @@ var FollowBias = Backbone.View.extend({
     women_percent_label.css("font-size", parseInt((52/240)*d.pie_radius) + "px");
     women_percent_label.css("line-height", parseInt((52/240)*d.pie_radius) + "px");
     women_percent_label.css("top", parseInt(d.cy - women_percent_label.height()/3) + "px")
+
+    $(".gender_label.Male .value").html(this.followbias_data.male)
+    $(".gender_label.Female .value").html(this.followbias_data.female)
+    $(".gender_label.Unknown .value").html(this.followbias_data.unknown)
    
   },
 
   start_spinner: function(){
     if(this.spinner!=null){
+//      this.spinner.stop();
       this.spinner.remove();
       this.spinner = null;
     }
@@ -210,5 +294,6 @@ var FBRouter = Backbone.Router.extend({
 });
 
 router = new FBRouter();
+account_corrections = new AccountCorrections();
 follow_bias = new FollowBias();
 Backbone.history.start();

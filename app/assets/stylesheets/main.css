@@ -133,6 +133,7 @@ svg{
 .section{
   margin:0 auto; width:550px;
   color:#eee;
+  position:relative;
 }
 
 .section p{
@@ -174,6 +175,7 @@ svg{
 .correct_account img{
   border-radius:5px;
   vertical-align:top;
+  max-height: 48px;
 }
 
 .correct_account .account{
@@ -221,16 +223,20 @@ svg{
   cursor:pointer;
 }
 
-.correction.m{
+.correction.Male,.gender_label.Male{
   background:rgb(113,121,132);
 }
 
-.correction.f{
+.correction.Female,.gender_label.Female{
   background:rgb(152,116,124);
 }
 
-.correction.x{
+.correction.Omit,.gender_label.Omit{
   background:rgb(41,41,41);
+}
+
+.correction.Unknown{
+  background:rgb(91,91,91);
 }
 
 .correction.selected{
@@ -240,18 +246,83 @@ svg{
   margin-left:5px;
 }
 
-.correction.m.selected{
+.correction.Male.selected{
   background:rgb(143,159,182);
 }
 
-.correction.f.selected{
+.correction.Female.selected{
   background:rgb(222,149,166);
 }
 
-.correction.b.selected{
+.correction.Unknown.selected,.gender_label.Unknown{
   background:rgb(130,130,130);
 }
 
-.correction.x.selected{
+.correction.Omit.selected{
   background:#363636;
+}
+
+.label_row{
+  margin-bottom:20px;
+  text-align:center;
+}
+
+.gender_label{
+  display:inline-block;
+  font-family: 'Lato', sans-serif;
+  font-size:11pt;
+  box-shadow:0px 0px 2px rgb(80,80,80);
+  padding-left:5px;
+  padding-right:5px;
+  margin-left:5px;
+  margin-right:5px;
+}
+
+.arrow-left,.arrow-right{
+  border-style: dashed;
+  border-color: transparent;
+  border-width: 0.53em;
+  display: -moz-inline-box;
+  display: inline-block;
+  /* Use font-size to control the size of the arrow. */
+  font-size: 80px;
+  height: 0;
+  line-height: 0;
+  position: relative;
+  vertical-align: middle;
+  width: 0;
+}
+
+.arrow-right{
+  border-left-width: 1em;
+  border-left-style: solid;
+  border-left-color: #666;
+  left: 0.25em; 
+}
+
+.arrow-left{
+  border-right-width: 1em;
+  border-right-style: solid;
+  border-right-color: #666;
+  right: 0.25em;
+}
+
+.prev-page,.next-page{
+  position:absolute;
+  top:50%;
+}
+.prev-page{
+  left:-70px;
+}
+
+.next-page{
+  left:500px;
+}
+
+.arrow-right:hover{
+  border-left-color:#aaa;
+}
+
+.arrow-left:hover{
+  border-right-color:#aaa;
 }
