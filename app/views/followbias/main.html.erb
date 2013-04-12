@@ -1,6 +1,10 @@
-<div id="topbar">
-      <span class="baritem" style="background:rgb(105,127,158);color:rgb(150,165,187);">FOLLOW BIAS</span>
-      <span class="baritem" style="background:rgb(211,113,136);left:50%;">&nbsp;</span>
+<div id="topbar" style="display:none;">
+      <span class="baritem" style="background:rgb(105,127,158);color:rgb(150,165,187);"><a href="#tops">FOLLOW BIAS</a></span>
+      <span class="baritem" style="background:rgb(211,113,136);left:50%;"><div class="nav" align="right">
+				<a href="#results">Results</a>
+				<a href="#improve">Data</a>
+				<a href="#about">About</a>
+      </div></span>
       <a class="brand">
         <span class="men" id="topbar_men">39%</span>
         <img src="/img/followbias-goggles.svg" style="height:60px;"/>
@@ -8,8 +12,16 @@
       </a>
 </div>
 
+<div id="corner_nav">
+  <a href="#results">Your Results</a>
+  <a href="#improve">Improve Your Data</a>
+  <a href="#about">About</a>
+
+</div>
+
 
 <div id="followbias">
+  <div id="scroll_tops"></div>
   <div id="foreground">
     <div class="contents">
 			<h1 id="chapter_one" class="chapter">Episode 1 &mdash; Gender</h1>
@@ -17,8 +29,9 @@
     </div>
   </div>
   <div id="background">
-        <div id="men_percent"></div>
-        <div id="women_percent"></div>
+        <div id="men_percent"><span class="value"></span><span class="value_label">men</span></div>
+        <div id="women_percent"><span class="value"></span><span class="value_label">women</span></div>
+        <div id="bots_percent"><span class="value"></span><span class="value_label">brands &amp; bots</span></div>
         <img id="main_glasses" src="/img/followbias-goggles.svg"/>
   </div>
 </div>
@@ -36,7 +49,7 @@
   <div class="row" id="data_explanation">
      
     <div class="section">
-			<h2>Where does this data come from?</h2>
+			<h2 id="scroll_results">Understanding Your Results</a></h2>
 			<hr/>
 			<p>It has already been hinted that Tuesday was a day of general mortification in Pym's copy-department. The trouble was caused by Messrs. Toule &amp; Jollop, proprietors of Nutrax, Maltogene, and Jollop's Concentrated Lactobeef Tablets for Travellers. Unlike the majority of clients who, though all tiresome in their degree, exercised their tiresomeness by post from a reasonable distance and at reasonable intervals, Messrs. Toule &amp; Jollop descended upon Pym's every Tuesday for a weekly conference. </p>
     </div>
@@ -45,7 +58,7 @@
 
   <div class="row" id="help">
     <div class="section">
-			<h2>Help!</h2>
+			<h2 id="scroll_improve">Improve Your Data</h2>
       <hr/>
       <p>Right now, we're trying to improve our data quality, and you can help by fixing any miscategorized followers below. You'll see your own score get more accurate as you work. Just click on the correct category.</p>
 
@@ -55,11 +68,10 @@
 				<div class="label gender_label Unknown"><span class="value"></span> Brands &amp; Bots</div>
 				<div class="label gender_label Omit"><span class="value"></span> Omitted</div>
       </div>
-      <div class="next-page"><div class="arrow-right"> </div></div>
-      <div class="prev-page"><div class="arrow-left"> </div></div>
+      <div class="next-page" style="display:none"><div class="arrow-right"> </div><div class="page_label"></div></div>
+      <div class="prev-page" style="display:none"><div class="arrow-left"> </div><div class="page_label"></div></div>
       <div id="accounts_page"></div>
 
-      <!-- begin account correction entry --> 
 <!--      <div class="correct_account">
 				<img src="http://twimg0-a.akamaihd.net/profile_images/53907183/P1000090_normal.jpg"/>
         <span class="account">
@@ -77,9 +89,9 @@
     </div>
   </div>
 
-  <div class="row" id="about">
+  <div class="row" id="about_followbias">
     <div class="section">
- 		  <h2>About!</h2>
+ 		  <h2 id="scroll_about">About FollowBias</h2>
       <hr/>
       <p>To Lord Peter Wimsey, the few weeks of his life spent in unravelling the Problem of the Iron Staircase possessed an odd dreamlike quality, noticeable at the time and still more insistent in retrospect. The very work that engaged him—or rather, the shadowy simulacrum of himself that signed itself on every morning in the name of Death Bredon—wafted him into a sphere of dim platonic archetypes, bearing a scarcely recognizable relationship to anything in the living world.</p>
     </div>
@@ -89,7 +101,7 @@
 
 <script id="correct_account_template" type="text/template">
 	<div class="correct_account" data-id="{{=account.uuid}}">
-		<img src="{{=account.profile_image_url}}"/>
+		<img src="{{=account.profile_image_url}}" width="48" height="48"/>
 		<span class="account">
 			<span class="name">{{=account.name}}</span>
 			<a class="screen_name" href="https://twitter.com/{{=account.screen_name}}">@{{=account.screen_name}}</a>

@@ -51,7 +51,7 @@ svg{
 #foreground .contents{
   color:#eee;
   opacity:1.0;
-  text-shadow:1px 1px 1px #666;
+  text-shadow:1px 1px 1px rgba(71,71,71,0.7);
   text-align:center;
   margin-left:-100%;
 }
@@ -71,14 +71,22 @@ svg{
   left:50%;
 }
 
-#men_percent,#women_percent{
+#men_percent,#women_percent,#bots_percent{
   color:white;
   font-weight:bold;
   position:absolute;
   z-index:120;
 }
 
-#men_percent{
+#background .value_label{
+  display:block;
+  text-align:center;
+}
+
+#background .value{
+  display:block;
+  text-align:center;
+  text-shadow: 0px 1px 2px rgba(71,71,71,0.3);
 }
 
 #topbar{
@@ -89,7 +97,7 @@ svg{
   width:100%;
   text-align:center;
   color:#fff;
-  background:#333);
+  background:#333;
   -webkit-box-shadow: 0 4px 8px -2px #000000;
      -moz-box-shadow: 0 4px 8px -2px #000000;
           box-shadow: 0 4px 8px -2px #000000;
@@ -104,6 +112,17 @@ svg{
   position:absolute; 
   width:50%; 
   text-align:left;
+}
+
+#topbar .baritem a{
+  font-color:auto;
+  color:#fff;
+  opacity:0.6;
+}
+#topbar .baritem a:hover{
+  text-decoration:none;
+  font-color:auto;
+  color:#fff;
 }
 
 .brand{
@@ -130,6 +149,36 @@ svg{
   left:120px;
 }
 
+.nav{
+   margin:0px !important;
+   padding:0px;
+   padding-right:10px;
+}
+
+.nav a{
+  display:inline-block;
+  font-size:12pt;
+  line-height:12pt;
+  margin:0px;
+  color:white;
+  margin-left:20px;
+}
+
+#corner_nav{
+  position:absolute;
+  right:50px;
+  width:300px;
+  z-index:900;
+}
+
+#corner_nav a{
+  display:block;
+  color:white;
+  font-family: 'Lato', sans-serif;
+  font-size:18px;
+}
+
+
 .section{
   margin:0 auto; width:550px;
   color:#eee;
@@ -152,7 +201,7 @@ svg{
   font-family: 'Lato', sans-serif;
   text-align:center;
   margin-bottom:20px;
-  text-shadow:0px 0px 2px #111;
+  text-shadow:1px 1px 3px rgba(31,31,31,0.5);
 }
 
 .section hr{
@@ -175,7 +224,8 @@ svg{
 .correct_account img{
   border-radius:5px;
   vertical-align:top;
-  max-height: 48px;
+  height: 48px !important;
+  width: 48px !important;
 }
 
 .correct_account .account{
@@ -285,7 +335,7 @@ svg{
   display: -moz-inline-box;
   display: inline-block;
   /* Use font-size to control the size of the arrow. */
-  font-size: 80px;
+  font-size: 40px;
   height: 0;
   line-height: 0;
   position: relative;
@@ -296,15 +346,28 @@ svg{
 .arrow-right{
   border-left-width: 1em;
   border-left-style: solid;
-  border-left-color: #666;
+  border-left-color: #eee;
   left: 0.25em; 
 }
 
 .arrow-left{
   border-right-width: 1em;
   border-right-style: solid;
-  border-right-color: #666;
+  border-right-color: #eee;
   right: 0.25em;
+}
+
+.page_label{
+  position:absolute;
+  display:inline-block;
+  width:70px;
+  top:10px;
+}
+.next-page .page_label{
+  left:60px
+}
+.prev-page .page_label{
+  right:45px
 }
 
 .prev-page,.next-page{
@@ -312,11 +375,11 @@ svg{
   top:50%;
 }
 .prev-page{
-  left:-70px;
+  left:-15px;
 }
 
 .next-page{
-  left:500px;
+  left:510px;
 }
 
 .arrow-right:hover{
