@@ -4,6 +4,10 @@ html,body{
   margin:0;
 }
 
+.appearonload{
+  display:none;
+}
+
 svg{
   margin:0px;
   padding:0px;
@@ -31,7 +35,7 @@ svg{
   z-index:1000; 
   top:50%; 
   left:50%;
-  display:inline-block
+  display:inline-block;
   text-align:center;
 }
 
@@ -114,6 +118,9 @@ svg{
   text-align:left;
 }
 
+#topbar .brand img{
+}
+
 #topbar .baritem a{
   font-color:auto;
   color:#fff;
@@ -149,19 +156,24 @@ svg{
   left:120px;
 }
 
-.nav{
+.nav_group{
    margin:0px !important;
    padding:0px;
-   padding-right:10px;
+   padding-right:20px;
 }
 
-.nav a{
+.nav_group a{
   display:inline-block;
   font-size:12pt;
   line-height:12pt;
   margin:0px;
   color:white;
   margin-left:20px;
+  margin-top:-10px;
+}
+
+.nav_group a:hover{
+  border-bottom:1px solid white;
 }
 
 #corner_nav{
@@ -283,6 +295,7 @@ svg{
 
 .correction.Omit,.gender_label.Omit{
   background:rgb(41,41,41);
+  display:none;
 }
 
 .correction.Unknown{

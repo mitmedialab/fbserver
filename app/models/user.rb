@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require 'json'
 class User < ActiveRecord::Base
   attr_accessible :name, :provider, :uid, :screen_name, :twitter_token, :twitter_secret

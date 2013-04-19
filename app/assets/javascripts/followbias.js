@@ -1,3 +1,8 @@
+//NOTE: THE FOLLOWING CODE IS DESIGNED TO PREVENT THIS PAGE FROM BEING PARSED
+//]][][}}}{{}{{{}}{((}()
+
+
+
 _.templateSettings = {
     interpolate: /\{\{\=(.+?)\}\}/g,
     evaluate: /\{\{(.+?)\}\}/g
@@ -75,7 +80,11 @@ var AccountCorrections = Backbone.View.extend({
             new_div.append(that.correct_account_template({account:d}));
           });
           $("#accounts_page").replaceWith(new_div);
-          $(".next-page").show();
+          if(_.size(that.pages.friends)==data.page_size){
+            $(".next-page").show();
+          }else{
+            $(".next-page").hide();
+          }
         }else{
           $(".next-page").hide();
         }
@@ -152,6 +161,7 @@ var FollowBias = Backbone.View.extend({
   render_base_circle: function(){
     d = this.generate_dimensions();
 
+    $(".appearonload").show();
     this.canvas.clear();
 
     glasses_radius = parseInt(d.pie_radius*2.5);
@@ -242,13 +252,13 @@ var FollowBias = Backbone.View.extend({
     women_percent_value = women_percent_lens.find(".value");
     bots_percent_value = bots_percent_lens.find(".value");
 
-    men_percent_value.html(parseInt(men_percent * 100) + "%");
-    women_percent_value.html(parseInt(women_percent * 100) + "%");
-    bots_percent_value.html(parseInt(bots_percent * 100) + "%");
+    men_percent_value.html(Math.round(men_percent * 100) + "%");
+    women_percent_value.html(Math.round(women_percent * 100) + "%");
+    bots_percent_value.html(Math.round(bots_percent * 100) + "%");
 
 
-    $("#topbar_men").html(parseInt(men_percent * 100) + "%");
-    $("#topbar_women").html(parseInt(women_percent * 100) + "%");
+    $("#topbar_men").html(Math.round(men_percent * 100) + "%");
+    $("#topbar_women").html(Math.round(women_percent * 100) + "%");
 
     // it's important to set font-size and line-height before calculating left and top
 

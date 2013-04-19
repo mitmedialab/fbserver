@@ -1,7 +1,10 @@
+# -*- encoding : utf-8 -*-
 require "resque"
+require 'resque/plugins/lock'
 
 #stub class
 class ProcessUserFriends
+  extend Resque::Plugins::Lock
   @queue = :fetchfriends
   def self.perform(authdata)
   end
@@ -72,12 +75,18 @@ class FollowbiasController < ApplicationController
   def main
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     redirect_to "/" and return if @current_user.nil?
+    authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
+                :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
+                :oauth_token => @current_user['twitter_token'],
+                :oauth_token_secret => @current_user['twitter_secret']}
+    Resque.enqueue(ProcessUserFriends, authdata)
     render :layout=>"main"
   end
 
   def index
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     redirect_to "/" and return if @current_user.nil?
+    redirect_to "/followbias/main" if !@current_user.nil?
     if(!@current_user.nil?)
 
       authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
