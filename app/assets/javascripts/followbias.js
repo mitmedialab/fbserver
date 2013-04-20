@@ -49,14 +49,25 @@ var AccountCorrections = Backbone.View.extend({
 
     new_value = $(".label_row ." + el.attr('data-gender') + " .value").html()
     prev_value = $(".label_row ." + prev.attr('data-gender') + " .value").html()
+    prev_var = prev.attr('data-gender')
+    new_var = el.attr('data-gender')
 
-    $(".label_row ." + el.attr('data-gender') + " .value").html(parseInt(new_value)+1);
-    $(".label_row ." + prev.attr('data-gender') + " .value").html(parseInt(prev_value)-1);
+		$(".label_row ." + new_var + " .value").html(parseInt(new_value)+1);
+		$(".label_row ." + prev_var + " .value").html(parseInt(prev_value)-1);
 
     jQuery.post("/followbias/correct", {id: p.attr("data-id"), gender:el.attr("data-gender"), authenticity_token: AUTH_TOKEN}, function(data){
 
       console.log(data);
     });
+
+    // now update the glasses
+    if(["Male", "Female"].indexOf(new_var) >= 0){
+      follow_bias.followbias_data[new_var.toLowerCase()] += 1;
+    }
+    if(["Male", "Female"].indexOf(prev_var) >= 0){
+      follow_bias.followbias_data[prev_var.toLowerCase()] -= 1;
+    }
+    follow_bias.render_glasses();
   },
 
   update_page_arrow_labels: function(next_page, page_size){
