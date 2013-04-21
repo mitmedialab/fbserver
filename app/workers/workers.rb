@@ -53,8 +53,8 @@ class DataObject
     @db.query(query)
   end
 
-  def too_soon client
-    query = "select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{client.user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 6 HOUR);"
+  def too_soon followbias_user
+    query = "select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{followbias_user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 6 HOUR);"
     puts query
     @db.query(query).size > 0
   end
@@ -77,7 +77,14 @@ class ProcessUserFriends
       Twitter::Client.new(authdata)
     }
 
-    if db.too_soon client
+    if(!authdata[:followbias_user].nil?)
+      followbias_user = client.user(authdata[:followbias_user])
+    else
+      followbias_user = client.user
+    end
+
+
+    if db.too_soon followbias_user
       puts "TOO SOON"
       return nil
     end
@@ -85,12 +92,12 @@ class ProcessUserFriends
     cursor = -1
     friendship_ids = []
     puts "fetching friendship ids"
-    #puts client.user.attrs[:id]
+    #puts followbias_user.attrs[:id]
 
 
     while cursor != 0 do
       friendships = self.catch_rate_limit {
-        client.friend_ids(client.user.attrs[:id], {:cursor=>cursor})
+        client.friend_ids(followbias_user.attrs[:id], {:cursor=>cursor})
       }
       cursor = friendships.next_cursor
       friendship_ids.concat friendships.ids
@@ -129,7 +136,7 @@ class ProcessUserFriends
     #end
 
    ### ==>
-   db.save_friends(client.user.attrs[:id], all_follow_data, follows)
+   db.save_friends(followbias_user.attrs[:id], all_follow_data, follows)
    puts "FRIENDS SAVED"
   end
 
