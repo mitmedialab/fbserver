@@ -1,11 +1,13 @@
 # -*- encoding : utf-8 -*-
 require "resque"
-require 'resque/plugins/lock'
+#require 'resque/plugins/lock'
+require 'resque-lock-timeout'
 
 #stub class
 class ProcessUserFriends
-  extend Resque::Plugins::Lock
+  extend Resque::Plugins::LockTimeout
   @queue = :fetchfriends
+  @lock_timeout = 3600
   def self.perform(authdata)
   end
 end

@@ -3,11 +3,12 @@ require File.join(File.dirname(__FILE__), '..', 'app', 'workers', 'workers.rb')
 require 'twitter'
 require 'csv'
 require 'resque'
-require 'resque/plugins/lock'
+require 'resque-lock-timeout'
 
 class ProcessUserFriends
-  extend Resque::Plugins::Lock
+  extend Resque::Plugins::LockTimeout
   @queue = :fetchfriends
+  @lock_timeout = 30
   def self.perform(authdata)
   end
 end
@@ -30,6 +31,6 @@ whitelist.each do |row|
               :oauth_token_secret => user.twitter_secret,
               :api_user => user.screen_name,
               :followbias_user => screen_name}
-  puts authdata
   Resque.enqueue(ProcessUserFriends, authdata)
+  puts authdata
 end

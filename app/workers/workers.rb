@@ -14,6 +14,14 @@ class DataObject
     @name_gender = NameGender.new
   end
 
+  def user_exists? screen_name
+    @db.query("select 1 from users where screen_name='#{screen_name}'").size > 0
+  end
+
+  def create_user t
+    @db.query("INSERT into users(screen_name, name, uid, created_at, updated_at, provider) VALUES('#{t.screen_name}', \"#{t.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\",'#{t.id}','#{Time.now.to_s}', '#{Time.now.to_s}', 'twitter');")
+  end
+
   def strip_redundant_accounts id_list
     more = true
     head = 0
@@ -22,7 +30,12 @@ class DataObject
       if head + 100 > id_list.size
         more = false
       end
-      rows = @db.query("select uuid from accounts WHERE uuid IN (#{id_list[head, 100].join(",")});").collect{|x|x['uuid']}
+
+      break if id_list[head, 100].size == 0
+     
+      query = "select uuid from accounts WHERE uuid IN (#{id_list[head, 100].join(",")});"
+      puts query
+      rows = @db.query(query).collect{|x|x['uuid']}
 
       id_list[head, 100].each do |id|
         return_list << id unless rows.include? id
@@ -34,9 +47,10 @@ class DataObject
 
   def save_account(account)
     #begin
+    print "."
       if(@db.query("select 1 from accounts where screen_name='#{account.screen_name}'").size == 0)
         #@db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
-        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''")}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{@name_gender.process(account.name)[:result]}')"
+        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{@name_gender.process(account.name)[:result]}')"
         @db.query(query)
       end
     #end
@@ -49,13 +63,13 @@ class DataObject
     user_id = @db.query("select id from users where uid=#{uid}").first["id"]
     query = "insert into friendsrecords(user_id, friends, created_at, updated_at) values(#{user_id}, '#{friends.to_json}',NOW(),NOW());"
  
-    puts query
+    #puts query
     @db.query(query)
   end
 
   def too_soon followbias_user
     query = "select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{followbias_user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 6 HOUR);"
-    puts query
+    #puts query
     @db.query(query).size > 0
   end
 
@@ -79,6 +93,9 @@ class ProcessUserFriends
 
     if(!authdata[:followbias_user].nil?)
       followbias_user = client.user(authdata[:followbias_user])
+      if(!db.user_exists? followbias_user.screen_name)
+        db.create_user(followbias_user)
+      end
     else
       followbias_user = client.user
     end
