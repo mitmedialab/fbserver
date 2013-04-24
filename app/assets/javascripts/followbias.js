@@ -13,12 +13,14 @@ var AccountCorrections = Backbone.View.extend({
   events:{
     "click .correction" : "correct_account",
     "click .arrow-left" : "prev_page",
-    "click .arrow-right": "next_page"
+    "click .arrow-right": "next_page",
+    "click #start_corrections":"start_corrections"
   },
   
   initialize: function(){
     this.correct_account_template = _.template($("#correct_account_template").html());
     this.label_template = _.template("({{=page}}/{{=pages}})")
+    this.corrections_paragraph = _.template($("#corrections_paragraph").html())
     $(".prev-page").hide();
   },
 
@@ -78,6 +80,24 @@ var AccountCorrections = Backbone.View.extend({
     $(".next-page .page_label").html(this.label_template({page: next_page, pages:pages}));
   },
 
+  fetch_gender_samples: function(){
+    that = this;
+    jQuery.get("/followbias/show_gender_samples/" + followbias_screen_name + ".json", function(data){
+        new_div = $("<div id='accounts_page'>");
+        _.each(data.friends, function(d){
+          new_div.append(that.correct_account_template({account:d}));
+        });
+        $("#accounts_page").replaceWith(new_div);
+    });
+  },
+
+  start_corrections: function(page){
+    $("#start_corrections").remove();
+    //$("#help").find("p").remove();
+    //$("#scroll_improve").after(that.corrections_paragraph());
+    this.fetch_corrections_page(0);
+  },
+
   fetch_corrections_page: function(page){
     that = this;
     this.current_page = page;
@@ -99,6 +119,7 @@ var AccountCorrections = Backbone.View.extend({
         }else{
           $(".next-page").hide();
         }
+        
       }else{
       }
     });
@@ -129,7 +150,8 @@ var FollowBias = Backbone.View.extend({
       this.fetch_followbias();
     }else{
       this.render_glasses();
-      account_corrections.fetch_corrections_page(0);
+      account_corrections.fetch_gender_samples();
+      //account_corrections.fetch_corrections_page(0);
     }
   },
 

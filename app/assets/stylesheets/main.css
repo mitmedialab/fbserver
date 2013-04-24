@@ -402,3 +402,9 @@ svg{
 .arrow-left:hover{
   border-right-color:#aaa;
 }
+
+#start_corrections{
+  margin-top:20px;
+  margin-bottom:20px;
+  font-weight:bold;
+}

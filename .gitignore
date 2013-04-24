@@ -1,4 +1,7 @@
 config/initializers/omniauth.rb 
 *.swp
 db/development.sqlite3
-
+public/assets
+utilities/*.csv
+tmp
+log
