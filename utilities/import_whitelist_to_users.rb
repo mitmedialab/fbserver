@@ -20,6 +20,7 @@ whitelist = CSV.read(ARGV[0])
 
 whitelist.each do |row|
   screen_name = row[0]
+  next if !User.find_by_screen_name(screen_name).nil?
 
   user_counter = 0 if(user_counter >= users.size)
   user = users[user_counter]

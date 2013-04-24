@@ -37,6 +37,18 @@ class FollowbiasControllerTest < ActionController::TestCase
     
   end
 
+  test "show sample friends" do
+    get :show_page, :id=>users(:one).screen_name, :page=>0
+    assert_redirected_to "/"
+
+    session[:user_id ] = users(:three).id
+    get :show_gender_samples, :format=>'json',:screen_name => users(:three).screen_name
+    assert_response :success
+    json_data = JSON.load(response.body)
+    assert_equal 6, json_data["friends"].size
+    
+  end
+
   test 'main no user' do
     get :main
     assert_redirected_to "/"

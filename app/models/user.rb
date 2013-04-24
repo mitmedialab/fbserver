@@ -18,11 +18,24 @@ class User < ActiveRecord::Base
 
   def all_friends
     unless self.friendsrecords.last.nil?
-      #sort by occurrence of ' ' to prioritise likely miscategorised accounts
-      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends)).order("INSTR(name,' ') ASC")
+      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends))
     else
       []
     end
+  end
+
+  def sample_friends
+    sz = 2
+    friends = []
+    counters = {"Male"=>0, "Female" =>0, "Unknown" =>0}
+    self.all_friends.each do |f|
+      break if counters["Male"] >= sz and counters["Female"] >= sz and counters["Unknown"] >= sz
+      if counters[f.gender] < sz
+        friends << f
+        counters[f.gender] += 1
+      end
+    end
+    friends
   end
 
   def all_friends_paged(limit,offset)

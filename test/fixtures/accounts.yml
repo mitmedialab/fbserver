@@ -43,3 +43,20 @@ five:
   name: Elizabeth The First
   gender: Female
   profile_image_url:
+
+six:
+  id: 6
+  uuid: 006
+  screen_name: femalepersonthree
+  name: Alice Liddell
+  gender: Female
+  profile_image_url:
+
+seven:
+  id: 7
+  uuid: 007
+  screen_name: corporationtwo
+  name: Acme Corp
+  gender: Unknown
+  profile_image_url:
+
