@@ -37,6 +37,26 @@ class FollowbiasControllerTest < ActionController::TestCase
     
   end
 
+  test 'main no user' do
+    get :main
+    assert_redirected_to "/"
+  end
+
+  test "main new user" do
+    get :main, nil, {:user_id=>users(:one).id}
+    assert_redirected_to "/soon"
+  end
+
+  test "main control group user" do
+    get :main, nil, {:user_id=>users(:three).id}
+    assert_redirected_to "/soon"
+  end
+
+  test "main test user" do
+    get :main, nil, {:user_id=>users(:two).id}
+    assert_response :success
+  end
+
   test "correct" do
     post :correct, :screen_name => "maleperson", :gender=>"Unknown"
     assert_equal "error", JSON.load(response.body)["status"]

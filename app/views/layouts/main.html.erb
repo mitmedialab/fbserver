@@ -11,6 +11,7 @@
     <!-- Bootstrap -->
     <link href="/styles/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <%= stylesheet_link_tag "main", :media => "all" %>
+    <%= stylesheet_link_tag "application", :media => "all" %>
 		<%= csrf_meta_tags %>
     <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? %>
 </head>

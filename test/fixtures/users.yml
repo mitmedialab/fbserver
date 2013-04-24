@@ -13,6 +13,7 @@ two:
   uid: 102
   name: Clark Kent
   screen_name: clarkkent
+  treatment: test
 
 three:
   id: 3
@@ -20,6 +21,7 @@ three:
   uid: 103
   name: Jane Austen
   screen_name: janeausten
+  treatment: ctl
 
 four:
   id: 4

@@ -77,6 +77,10 @@ class FollowbiasController < ApplicationController
   def main
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     redirect_to "/" and return if @current_user.nil?
+    
+    #send the control group and all new users to the "soon" page
+    redirect_to "/soon" and return if @current_user.treatment == "ctl" or @current_user.treatment == "new"
+ 
     authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
                 :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                 :oauth_token => @current_user['twitter_token'],
