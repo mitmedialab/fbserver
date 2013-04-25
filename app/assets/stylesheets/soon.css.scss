@@ -3,6 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 .soon img{
   margin-top:40px;
+  margin-bottom:20px;
 }
 
 .soon h2 {
@@ -39,6 +40,10 @@
 .section{
   text-align:left;
   width: 550px;
+}
+
+.container .row:nth-child(2n+1){
+  background:rgb(82,82,82);
 }
 
 .logout{

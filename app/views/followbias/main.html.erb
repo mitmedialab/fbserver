@@ -1,5 +1,8 @@
+<%= render "qualtrics_survey"%>
+
 <div id="topbar" style="display:none;">
       <span class="baritem" style="background:rgb(105,127,158);color:rgb(150,165,187);"><a href="#tops">FOLLOW BIAS</a></span>
+      <div id="correction_label"></div>
       <span class="baritem" style="background:rgb(211,113,136);left:50%;"><div class="nav_group" align="right">
 				<a href="#tops">Home</a><a href="#results">Results</a><a href="#about">About</a><a href="#improve">Data</a><%= link_to "Logout", signout_path %>
       </div></span>
@@ -50,10 +53,10 @@
     <div class="section">
 			<h2 id="scroll_results">Understanding Your Results</a></h2>
 			<hr/>
-       <p>On social media, we each choose who to listen to for news, opinion, and conversation. Those choices influence what we see, what we miss, and what our biases are. When we share or retweet content, we pass on our biases to others.</p>
+       <p>On social media, we each choose who to listen to for news, opinion, and conversation. Those choices influence what we see, what we miss, and what our biases are. When we share or retweet content, we pass our biases to others.</p>
       <p>FollowBias estimates the gender diversity of the voices you pay attention to on Twitter. It accesses the public list of accounts you follow and guesses their genders based on name. Check back anytime to see how your FollowBias has changed; our server updates it every six hours.</p>
       <p>What's the gender ratio of Twitter overall? <a href="http://civic.mit.edu/blog/natematias/women-news-and-the-internet-almost-everything-we-know#socmedia">Studies disagree</a>. By participating in this study, you are improving research on gender online.</p>
-      <p>FollowBias only collects public information that you reveal on your public Twitter profile. You can stop it from collecting data at any time by following these <a href="https://support.twitter.com/articles/76052-connecting-or-revoking-third-party-applications">instructions on revoking third party access</a>. If you have any further questions about our use of your data, please <a href="#about">contact us</a>.</p>
+      <p>FollowBias only collects public information that you reveal on your public Twitter profile. You can close your account anytime by following these <a href="https://support.twitter.com/articles/76052-connecting-or-revoking-third-party-applications">instructions on revoking third party access</a>. If you have any further questions about our use of public data, please <a href="#about">contact us</a>.</p>
     </div>
   
   </div>
@@ -63,7 +66,7 @@
  		  <h2 id="scroll_about">About FollowBias</h2>
       <p>Thanks for participating in the testing period of FollowBias! <a href="https://github.com/c4fcm/fbserver/issues/new">Please add bug reports to Github</a>.</p>
       <p>FollowBias is a collaboration by <a href="https://twitter.com/natematias">J. Nathan Matias</a>, <a href="http://twitter.com/dearsarah">Sarah Szalavitz</a>, and <a href="https://twitter.com/jameshome">James Home</a>. It's part of <a href="http://hypatia.media.mit.edu:3000/">Nathan's work at the MIT Media Lab</a> to expand how we measure and change gender diversity in the media. It's part of Sarah's efforts toward <a href="http://www.wired.co.uk/magazine/archive/2012/04/ideas-bank/sarah-szalavitz">gender diversity in technology and social media</a>.</p>
-      <p>Please <strong>email us</strong> with questions about FollowBias, <a href="http://source.mozillaopennews.org/en-US/articles/under-hood-open-gender-tracker/">Open Gender Tracker</a>, and our other projects focused on gender diversity.</p>
+      <p>Email us at <strong><a href="mailto:followbias@gmail.com">followbias@gmail.com</a></strong> with questions about FollowBias, <a href="http://source.mozillaopennews.org/en-US/articles/under-hood-open-gender-tracker/">Open Gender Tracker</a>, and our other projects focused on gender diversity.</p>
       <hr/>
     </div>
   </div>
@@ -83,8 +86,6 @@
 				<div class="label gender_label Unknown"><span class="value"></span> Brands &amp; Bots</div>
 				<div class="label gender_label Omit"><span class="value"></span> Omitted</div>
       </div>
-      <div class="next-page" style="display:none"><div class="arrow-right"> </div><div class="page_label"></div></div>
-      <div class="prev-page" style="display:none"><div class="arrow-left"> </div><div class="page_label"></div></div>
       <div id="accounts_page"></div>
 
 <!--      <div class="correct_account">
@@ -111,6 +112,10 @@
 
 <script id="corrections_paragraph" type="text/template">
       <p><strong>INSTRUCTIONS</strong>: Right now, we're trying to improve our data quality, and you can help by fixing any miscategorized followers below. You'll see your own score get more accurate as you work. Just click on the correct category.</p>
+</script>
+
+<script id="corrections_progress_label" type="text/template">
+ loaded {{= visible}}<br/> of {{=total_following}}
 </script>
 
 <script id="correct_account_template" type="text/template">

@@ -425,3 +425,18 @@ a.btn{
 .dubstep_cat{
   margin-top:40px;
 }
+
+#correction_label{
+  display:none;
+  position:absolute;
+  top:100px;
+  padding:10px;
+  border-radius:5px;
+  left:20px;
+  background:rgb(72,72,72);
+  color:#eee;
+  font-family: 'Lato',sans-serif;
+  font-size:11pt;
+  line-height:11pt;
+  font-weight:normal;
+}

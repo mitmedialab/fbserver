@@ -33,7 +33,7 @@ class FollowbiasController < ApplicationController
 
   def show_page
 
-    page_size = 20
+    page_size = 25
     
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
     @user = User.find_by_screen_name(params[:id])
