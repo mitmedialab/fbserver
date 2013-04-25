@@ -59,7 +59,7 @@ class FollowbiasController < ApplicationController
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
     respond_to do |format|
       format.json{
-        render :json => {:friends=>@user.sample_friends}
+        render :json => {:friends=>@user.sample_friends.shuffle}
       }
     end
   end

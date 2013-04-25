@@ -4,6 +4,11 @@ html,body{
   margin:0;
 }
 
+p strong{
+  text-shadow:1px 1px 1px rgba(71,71,71,0.7);
+  color:white;
+}
+
 .appearonload{
   display:none;
 }
@@ -195,6 +200,14 @@ svg{
   margin:0 auto; width:550px;
   color:#eee;
   position:relative;
+}
+
+.section a{
+  color:rgb(170,170,170);
+}
+
+a.btn{
+  color:#333;
 }
 
 .section p{
