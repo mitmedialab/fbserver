@@ -1,0 +1,3 @@
+Get a list of how many corrections a given set of users has carried out:
+
+select u.screen_name, count(*) as c from account_gender_judgments as a JOIN users as u on a.user_id = u.id GROUP BY u.screen_name HAVING c > 0 ORDER BY c DESC;

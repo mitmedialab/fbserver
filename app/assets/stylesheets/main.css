@@ -238,7 +238,7 @@ a.btn{
 
 .correct_account{
   margin: 0 auto;
-  background:rgb(82,82,82);
+  background:rgb(72,72,72);
   border-radius:5px;
   padding:10px;
   margin-bottom:5px;
@@ -420,4 +420,8 @@ a.btn{
   margin-top:20px;
   margin-bottom:20px;
   font-weight:bold;
+}
+
+.dubstep_cat{
+  margin-top:40px;
 }
