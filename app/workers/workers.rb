@@ -34,7 +34,7 @@ class DataObject
       break if id_list[head, 100].size == 0
      
       query = "select uuid from accounts WHERE uuid IN (#{id_list[head, 100].join(",")});"
-      puts query
+      #puts query
       rows = @db.query(query).collect{|x|x['uuid']}
 
       id_list[head, 100].each do |id|
@@ -87,6 +87,7 @@ class ProcessUserFriends
       authdata[(key.to_sym rescue key) || key] = authdata.delete(key)
     end
 
+    puts "connecting to client"
     client = self.catch_rate_limit{
       Twitter::Client.new(authdata)
     }
@@ -140,8 +141,10 @@ class ProcessUserFriends
 
       break if new_follows.size == 0
 
+      puts "new follows: #{new_follows[head, 100]}"
+
       all_follow_data.concat self.catch_rate_limit{
-        client.users(new_follows[head, 100])
+        client.users(new_follows[head, 100], :method => :post)
       }
       head += 100
       print "."
@@ -170,13 +173,24 @@ class ProcessUserFriends
       else
         retry
       end
-    rescue Twitter::Error::ServiceUnavailable => error
+    rescue Twitter::Error::NotFound => error
+      puts "Twitter::Error:NotFound -- retrying"
+      puts error
+      #return nil after second attempt
+      return [] if(num_attempts >= 2)
       sleep(8)
-      print "x"
+      retry
+    rescue Twitter::Error::Forbidden => error
+      return []
+    rescue Twitter::Error::ServiceUnavailable => error
+      puts "Twitter::Error:ServiceUnavailable -- retrying"
+      puts error
+      sleep(8)
       retry
     rescue Twitter::Error::BadGateway => error
+      puts "Twitter::Error:BadGateway -- retrying"
+      puts error
       sleep(8)
-      print "x"
       retry
     end
   end
