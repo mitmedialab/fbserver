@@ -1,35 +1,48 @@
 <div class="container soon">
   <div class="row">
     <div align="center"><!--<iframe src="http://player.vimeo.com/video/36820781?title=0&amp;byline=0&amp;portrait=0&amp;color=ff9933" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen class="dubstep_cat"></iframe>--><%=image_tag "dubstep_cat.png"%></div>
-  </div>
-  <div class="row">
-    <h2 class="title">Take The Survey</h2>
+    <h2 class="title">Soon</h2>
     <div align="center" class="section">
       <hr/>
-
-      <p>You are seeing this page because you are in the control group for our research. Thanks for your patience! Please <a href="https://qtrial.qualtrics.com/SE/?SID=SV_3faNJtWl9jrarRj" class="btn" target="_new">take the survey</a> &mdash; for science!</p> <p>We hope you accept this photo of Dubstep Cat as a consolation prize. After our study concludes, we will follow up and give you a chance to access the full version.</p>
+      <% if @current_user.treatment == "new"%>
+        <p>You are seeing this page because you are in the control group for our research. We hope you accept this photo of Dubstep Cat as a consolation prize. One week from now, we will follow up and give you a chance to access the full version.</p>
+      <% else %>
+        <p>You are seeing this page because FollowBias is currently in private beta. We hope you accept this photo of Dubstep Cat as a consolation prize. Please email us at <strong><a href="mailto:followbias@gmail.com">followbias@gmail.com</a></strong> if you want to be included in the next round of test users.</p>
+      <% end %>
     </div>
   </div>
   <div class="row">
     <h2>What Is FollowBias?</h2>
     <div align="center" class="section">
       <hr/>
-      <p>On social media, we each choose who to listen to for news, opinion, and conversation. Those choices influence what we see, what we miss, and what our biases are. When we share or retweet content, we pass our biases to others.</p>
-      <p>FollowBias estimates the gender diversity of the voices you pay attention to on Twitter. It accesses the public list of accounts you follow and guesses their genders based on name. Check back anytime to see how your FollowBias has changed; our server updates it every six hours.</p>
-      <p>FollowBias only collects public information that you reveal on your public Twitter profile. You can close your account anytime by following these <a href="https://support.twitter.com/articles/76052-connecting-or-revoking-third-party-applications">instructions on revoking third party access</a>.</p>
+<p>On social media, each of us chooses exactly who we listen to for news, science, gossip, and casual conversation. These choices filter and bias the information we consume, even if it's unintentional. Wh
+en we share or retweet content, we pass our FollowBias to our own networks.</p>
+      <p>Taking control of our filters starts with awareness. FollowBias calculates the gender diversity of who you choose to follow. It accesses the public list of accounts you follow and estimates gender based on first name. You can return anytime to see how your FollowBias has changed; our server updates every six hours.</p>
+      <p>FollowBias only collects public information that you reveal on your public Twitter profile. You can close your account anytime by following these <a href="https://support.twitter.com/articles/76052-connecting-or-revoking-third-party-applications">instructions on revoking third party access</a>. If you have any further questions about our use of public data, please <a href="#about">contact us</a>.</p>
     </div>
+  </div>
+  <div class="row">
+
+   <div class="section">
+      <h2>Why FollowBias</h2>
+       <hr/>
+       <p>We created FollowBias to understand and manage the impact of our filters on the content we create, consume and share. Many people we admire are working to include and listen to more women. FollowBias helps us keep track.</p>
+       </p>
+       <p>We discourage the practice of shaming. Gender bias is a sensitive subject, and Twitter use varies widely. A FollowBias score out of context does not constitute a judgment of bias itself. Our mission is to provide metrics for personal behaviour change&mdash;not to make public judgments of individuals.</p>
+       <p>When it launches, FollowBias will offer a range of metrics, recommendations, and the chance to compare yourself to peers. With your feedback and help, we can build a tool that supports diversity based on what works. Thanks for participating! <a href="https://github.com/c4fcm/fbserver/issues/new">Please add bug reports to Github</a>.</p>
+       </p>
+    </div>
+
   </div>
 
   <div class="row">
     <h2 class="title">About Us</h2>
     <div align="center" class="section">
-      <hr/>
-      <p>FollowBias is a collaboration by <a href="https://twitter.com/natematias">J. Nathan 
-Matias</a>, <a href="http://twitter.com/dearsarah">Sarah Szalavitz</a>, and <a href="https://
-twitter.com/jameshome">James Home</a>. It's part of <a href="http://hypatia.media.mit.edu:300
-0/">Nathan's work at the MIT Media Lab</a> to expand how we measure and change gender diversity in the media. It's part of Sarah's efforts toward <a href="http://www.wired.co.uk/magazine
-/archive/2012/04/ideas-bank/sarah-szalavitz">gender diversity in technology and social media</a>.</p>
-      <p>Email us at <strong><a href="mailto:followbias@gmail.com">followbias@gmail.com</a></strong> with questions about FollowBias, <a href="http://source.mozillaopennews.org/en-US/articles/under-hood-open-gender-tracker/">Open Gender Tracker</a>, and our other projects focused on gender diversity.</p>
+      <p><a href="https://twitter.com/natematias">J. Nathan Matias</a> and <a href="https://twitter.com/dearsarah">Sarah Szalavitz</a> met at the MIT Media Lab in 2012 and discovered they shared some of the same crazy dreams about <a href="http://civic.mit.edu/blog/natematias/women-news-and-the-internet-almost-everything-we-know">measuring and changing</a> <a href="http://www.wired.co.uk/magazine/archive/2012/04/ideas-bank/sarah-szalavitz">gender diversity</a> in the media. A few months later, we managed to convince <a href="https://twitter.com/jameshome">James Home</a> to contribute to the project, who has made the project even more spectacular.</p>
+      <p>J. Nathan Matias is a grad student at the MIT Media Lab Center for Civic Media, advised by <a href="https://twitter.com/ethanz">Ethan Zuckerman</a>. Nathan collaborates on technology and communities which empower people to become <a href="http://hypatia.media.mit.edu:3000/">more creative, effective, and informed</a>.</p>
+      <p>Sarah Szalavitz is the CEO of 7Robot, a social design firm.  She also serves as a fellow at the MIT Media Lab, where she teaches <a href="http://web.media.mit.edu/~asetapen/MAS964/">Social Design</a>.</p>
+      <p>James Home is a product designer who works on mysterious things at Google.</p>
+      <p>Email us at <strong><a href="mailto:followbias@gmail.com">followbias@gmail.com</a></strong> with questions about FollowBias, <a href="http://source.mozillaopennews.org/en-US/articles/under-hood-open-gender-tracker/">Open Gender Tracker</a>, Skirts on a Panel, and our other projects focused on gender diversity.</p>
 
       <div align="right"><a href="/signout" class="btn logout">Logout</a></div>
     </div>

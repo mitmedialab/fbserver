@@ -83,7 +83,6 @@ var AccountCorrections = Backbone.View.extend({
     //$("#help").find("p").remove();
     //$("#scroll_improve").after(that.corrections_paragraph());
     this.fetch_corrections_page(0);
-    $("#correction_label").show();
   },
 
   fetch_corrections_page: function(page){
@@ -102,6 +101,7 @@ var AccountCorrections = Backbone.View.extend({
           account_corrections.fetching_corrections = false;
           visible_accounts = data.page_size * (that.current_page) + _.size(that.pages.friends);
           $("#correction_label").html(that.corrections_progress_label({visible: visible_accounts, total_following:follow_bias.followbias_data.total_following}));
+          $("#correction_label").show();
 
         }else{
           console.log("End of corrections list");
@@ -126,7 +126,7 @@ var FollowBias = Backbone.View.extend({
     this.canvas = Raphael("background", "100%", "100%");
     this.survey_viewed = false;
 
-    this.render();
+    //this.render();
     $(window).bind("resize.app", _.bind(this.render, this));
     $(window).bind("scroll", _.bind(this.scroll, this));
   },
@@ -406,6 +406,23 @@ var PostSurvey = Backbone.View.extend({
   },
 });
 
+var ShhView = Backbone.View.extend({
+  el:"#shh",
+
+  events:{
+    "click .close": "close_shh",
+    "click .btn_close": "close_shh"
+  },
+
+  initialize: function(){
+  },
+
+  close_shh: function(){
+    $(this.el).hide();
+    follow_bias.render();
+  }
+});
+
 var FBRouter = Backbone.Router.extend({
   routes:{
     ":link":"scroll_to"
@@ -421,4 +438,5 @@ router = new FBRouter();
 account_corrections = new AccountCorrections();
 follow_bias = new FollowBias();
 post_survey = new PostSurvey();
+shh_view = new ShhView();
 Backbone.history.start();
