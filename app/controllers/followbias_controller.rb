@@ -2,6 +2,7 @@
 require "resque"
 #require 'resque/plugins/lock'
 require 'resque-lock-timeout'
+require 'digest/sha1'
 
 #stub class
 class ProcessUserFriends
@@ -89,7 +90,18 @@ class FollowbiasController < ApplicationController
   def main
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
     redirect_to "/" and return if @current_user.nil?
-    
+
+    #  redirect test subjects to survey unless they have been reffered by the survey
+    #  or they have taken the survey previously
+    if(!@current_user.survey_complete and 
+       (@current_user.treatment == "ctl" or @current_user.treatment == "test"))
+      if(!params.has_key? "survey")
+        redirect_to ENV_SURVEYS[@current_user.id % ENV_SURVEYS.size] + "&screen_name=#{Digest::SHA1.hexdigest(@current_user.screen_name)}"and return
+      else
+        @current_user.survey_complete = true
+        @current_user.save!
+      end
+    end
     #send the control group and all new users to the "soon" page
     redirect_to "/soon" and return if @current_user.treatment == "ctl" or @current_user.treatment == "new"
  
