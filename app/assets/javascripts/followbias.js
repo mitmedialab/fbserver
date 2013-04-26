@@ -137,6 +137,7 @@ var FollowBias = Backbone.View.extend({
       this.fetch_followbias();
     }else{
       this.render_glasses();
+      post_survey.start_survey_timer();
       $("#correction_label").css("top", ($(window).height() - 80) + "px");
       if(!account_corrections.corrections_active){
         account_corrections.fetch_gender_samples();
@@ -365,6 +366,42 @@ var FollowBias = Backbone.View.extend({
 
 });
 
+var PostSurvey = Backbone.View.extend({
+  el:"#post_survey",
+  events:{
+    "click .close" : "close_survey",
+    "click .btn_close" : "close_survey",
+    "click .btn_save" : "save_survey",
+    "click #start_corrections":"start_corrections"
+  },
+
+  start_survey_timer: function(){
+    window.setTimeout(function(){
+      $("#post_survey").show();
+    }, 30000);
+  },
+
+  initialize: function(){
+    that = this;
+    $("#final_survey").submit( function () {
+      $.post( '/followbias/final_survey',
+              $(this).serialize(),
+              function(data){
+                post_survey.close_survey();
+              });
+      return false;     
+    });  
+  },
+
+  close_survey: function(){
+    $(this.el).hide();
+  },
+
+  save_survey: function(){
+    $("#final_survey").submit();
+  },
+});
+
 var FBRouter = Backbone.Router.extend({
   routes:{
     ":link":"scroll_to"
@@ -373,11 +410,11 @@ var FBRouter = Backbone.Router.extend({
     $('html, body').stop().animate({
         scrollTop: ($("#scroll_"+anchor).offset().top - 75)
     }, 900);
-//    $.scrollTo($("#"+anchor).position().top);
   }
 });
 
 router = new FBRouter();
 account_corrections = new AccountCorrections();
 follow_bias = new FollowBias();
+post_survey = new PostSurvey();
 Backbone.history.start();

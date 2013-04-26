@@ -120,4 +120,18 @@ class FollowbiasController < ApplicationController
       @followers = []
     end
   end
+
+
+  def final_survey
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]  
+    redirect_to "/" and return if @current_user.nil?
+    result = params
+    result.delete("authenticity_token")
+    #if(@current_user.post_survey.nil?)
+      @current_user.post_survey = result.to_json
+      @current_user.save!
+    #end
+    render :nothing => true
+  end
+
 end

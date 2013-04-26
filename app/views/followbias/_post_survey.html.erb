@@ -1,0 +1,68 @@
+  <div id="post_survey" class="modal">
+    <div class="modal-header">
+      <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+      <h3>Final Survey Questions</h3>
+    </div>
+    <div class="modal-body">
+      <p>Now that you have seen your FollowBias, can you please answer four final questions?</p>
+      <form name="final_survey" action="/followbias/final_survey" method="post" id="final_survey">
+      <fieldset>
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <span class="help-block">Are you satisfied with the diversity of who you follow on Twitter?</span>
+        <label class="radio inline">
+          <input type="radio" name="satisfaction" value="Y"> Yes
+        </label>
+        <label class="radio inline">
+          <input type="radio" name="satisfaction" value="N"> No
+        </label>
+        <hr/>
+        <span class="help-block">What is your response to seeing your FollowBias?</span>
+        <textarea name="response_to_seeing" rows="3" style="width:95%"></textarea>
+        <hr/>
+        <span class="help-block">What actions might you take after seeing your FollowBias?</span>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="increase_follow"> Increase the gender diversity of who you follow
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="descrease_follow"> Decrease the gender diversity of who you follow
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="ask"> Ask your network for recommendations of people to follow, with reference to gender
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="increase_RT"> Increase the gender diversity of who you RT/Reblog
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="decrease_RT"> Decrease the gender diversity of who you quote/mention
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="increase_ment"> Increase the gender diversity of who you quote/mention
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="decrease_ment"> Decrease the gender diversity of who you quote/mention
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="more_diversity_attn"> Pay more attention to gender diversity
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="less_diversity_attn"> Pay less attention to gender diversity
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="track"> Begin to track gender diversity
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="change" value="other"> Other:
+        </label>
+        <input type="text" name="change_other" placeholder="enter your own">
+        <hr/>
+        <span class="help-block">What features do you think would help you create the change you want?</span>
+        <textarea name="ideas" rows="3" style="width:95%"></textarea>
+      </fieldset>
+      </form>
+
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn btn_close">Close</a>
+      <a href="#" class="btn btn-primary btn_save">Save changes</a>
+    </div>
+  </div>
