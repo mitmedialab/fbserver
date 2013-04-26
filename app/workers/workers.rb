@@ -68,7 +68,7 @@ class DataObject
   end
 
   def too_soon followbias_user
-    query = "select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{followbias_user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 6 HOUR);"
+    query = "select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{followbias_user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 350 MINUTE);"
     #puts query
     @db.query(query).size > 0
   end

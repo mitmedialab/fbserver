@@ -100,7 +100,7 @@ var AccountCorrections = Backbone.View.extend({
           $(".samples").remove();
           $("#accounts_page").append(new_div.children());
           account_corrections.fetching_corrections = false;
-          visible_accounts = data.page_size * (that.current_page)
+          visible_accounts = data.page_size * (that.current_page) + _.size(that.pages.friends);
           $("#correction_label").html(that.corrections_progress_label({visible: visible_accounts, total_following:follow_bias.followbias_data.total_following}));
 
         }else{
@@ -124,6 +124,7 @@ var FollowBias = Backbone.View.extend({
     this.topbar_down = false
     this.followbias_data = null;
     this.canvas = Raphael("background", "100%", "100%");
+    this.survey_viewed = false;
 
     this.render();
     $(window).bind("resize.app", _.bind(this.render, this));
@@ -137,7 +138,10 @@ var FollowBias = Backbone.View.extend({
       this.fetch_followbias();
     }else{
       this.render_glasses();
-      post_survey.start_survey_timer();
+      if(!this.survey_viewed){
+        post_survey.start_survey_timer();
+        this.survey_viewed = true;
+      }
       $("#correction_label").css("top", ($(window).height() - 80) + "px");
       if(!account_corrections.corrections_active){
         account_corrections.fetch_gender_samples();
