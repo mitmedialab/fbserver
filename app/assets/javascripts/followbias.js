@@ -381,7 +381,7 @@ var PostSurvey = Backbone.View.extend({
 
   start_survey_timer: function(){
     window.setTimeout(function(){
-      $("#post_survey").show();
+      $("#post_survey").fadeIn();
     }, 30000);
   },
 
@@ -391,14 +391,17 @@ var PostSurvey = Backbone.View.extend({
       $.post( '/followbias/final_survey',
               $(this).serialize(),
               function(data){
-                post_survey.close_survey();
+                $(post_survey.el).find(".modal-footer").hide();
+                $(post_survey.el).find(".modal-body").html($("#post_survey_thanks").html());
+                $(post_survey.el).delay("5000").fadeOut();
               });
       return false;     
     });  
   },
 
-  close_survey: function(){
+  close_survey: function(e){
     $(this.el).hide();
+    e.stopImmediatePropagation()
   },
 
   save_survey: function(){
@@ -417,9 +420,10 @@ var ShhView = Backbone.View.extend({
   initialize: function(){
   },
 
-  close_shh: function(){
+  close_shh: function(e){
     $(this.el).hide();
     follow_bias.render();
+    e.stopImmediatePropagation()
   }
 });
 

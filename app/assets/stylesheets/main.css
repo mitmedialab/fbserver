@@ -443,3 +443,9 @@ a.btn{
 #post_survey{
   display:none;
 }
+.modal-footer .btn-primary{
+  color:white;
+}
+.help-block{
+  font-weight:bold;
+}
