@@ -4,8 +4,8 @@
     <h2 class="title">Soon</h2>
     <div align="center" class="section">
       <hr/>
-      <% if @current_user.treatment == "new"%>
-        <p>You are seeing this page because you are in the control group for our research. We hope you accept this photo of Dubstep Cat as a consolation prize. After a week, we will follow up and give you a chance to access the full version.</p>
+      <% if @current_user.treatment == "ctl"%>
+        <p>You are seeing this page because you are in the control group for our research. We hope you accept this photo of Dubstep Cat as a consolation prize. After a week, we will follow up and give you access the full version.</p>
       <% else %>
         <p>You are seeing this page because FollowBias is currently in private beta. We hope you accept this photo of Dubstep Cat as a consolation prize. Please email us at <strong><a href="mailto:followbias@gmail.com">followbias@gmail.com</a></strong> if you want to be included in the next round of test users.</p>
       <% end %>
@@ -23,7 +23,7 @@
   <div class="row">
 
    <div class="section">
-    <h2>Why FollowBias</h2>
+    <h2>Why FollowBias?</h2>
        <hr/>
        <p>We, along with so many people we admire, care about including and listening to more women. We built FollowBias to understand and manage the impact of our filters on the content we create, consume and share.</p>
        <p>Gender bias is a sensitive subject, but it ought not be a shameful one. Who can claim that they can't do better? Our goal is to provide a tool to help individuals change their own behavior, not to shame or judge others. Given how wildly Twitter use varies a FollowBias score out of context is not a judgment of you as a person.</p>

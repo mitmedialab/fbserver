@@ -9,21 +9,21 @@
       <fieldset>
         <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
 
-        <span class="help-block">Are you satisfied with your FollowBias?</span>
+        <span class="help-block">Are you satisfied with your FollowBias result?</span>
         <label class="radio inline">
-          <input type="radio" name="satisfaction" value="Y"> Yes
+          <input type="radio" name="satisfied_with_followbias" value="Y"> Yes
         </label>
         <label class="radio inline">
-          <input type="radio" name="satisfaction" value="N"> No
+          <input type="radio" name="satisfied_with_followbias" value="N"> No
         </label>
         <hr/>
 
         <span class="help-block">Do you think that FollowBias will influence who you choose to follow in the future?</span>
         <label class="radio inline">
-          <input type="radio" name="satisfaction" value="Y"> Yes
+          <input type="radio" name="will_it_influence" value="Y"> Yes
         </label>
         <label class="radio inline">
-          <input type="radio" name="satisfaction" value="N"> No
+          <input type="radio" name="will_it_influence" value="N"> No
         </label>
         <hr/>
 
@@ -52,15 +52,17 @@
         <input type="text" name="change_other" placeholder="enter your own">
         <hr/>
 
-        <span class="help-block">What goal would you set for the percentage of women in your FollowBias?</span>
-        <input class="input-mini" name="percent_women_goal" type="text" style="text-align:right;"><strong>%</strong>
+        <span class="help-block">What goals would you set for your FollowBias?</span>
+        <input class="input-mini" name="percent_women_goal" type="text" style="text-align:right;"> % Female 
+        <input class="input-mini" name="percent_women_goal" type="text" style="text-align:right;"> % Male
+        <input class="input-mini" name="percent_women_goal" type="text" style="text-align:right;"> % Brands, Bots, and More
 
-        <span class="help-block">Diversity is more complex than a percentage. What makes your FollowBias complex?</span>
+        <span class="help-block">Diversity is more complex than a single percentage. What makes your FollowBias complex?</span>
         <textarea name="explain_complexity" rows="3" style="width:95%"></textarea>
 
         <hr/>
         <span class="help-block">Any thoughts? Comments?  Ideas?  Feedback?</span>
-        <textarea name="ideas" rows="3" style="width:95%"></textarea>
+        <textarea name="comments_ideas" rows="3" style="width:95%"></textarea>
       </fieldset>
       </form>
 

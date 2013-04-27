@@ -449,3 +449,7 @@ a.btn{
 .help-block{
   font-weight:bold;
 }
+
+#post_survey .input-mini{
+  width:25px; margin-left:5px;
+}
