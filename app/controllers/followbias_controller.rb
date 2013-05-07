@@ -96,7 +96,7 @@ class FollowbiasController < ApplicationController
     if(!@current_user.survey_complete and 
        (@current_user.treatment == "ctl" or @current_user.treatment == "test"))
       if(!params.has_key? "survey")
-        redirect_to ENV_SURVEYS[@current_user.id % ENV_SURVEYS.size] + "&screen_name=#{Digest::SHA1.hexdigest(@current_user.screen_name)}"and return
+        redirect_to ENV_SURVEYS[@current_user.id % ENV_SURVEYS.size] + "&user_id=#{Digest::SHA1.hexdigest(@current_user.screen_name)}"and return
       else
         @current_user.survey_complete = true
         @current_user.save!

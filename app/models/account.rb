@@ -4,9 +4,18 @@ class Account < ActiveRecord::Base
   has_many :account_gender_judgments
   def gender
     if self.account_gender_judgments.size >  0
-      return self.account_gender_judgments.last.gender
+      return self.account_gender_judgments.order("created_at ASC").last.gender
     else
-      read_attribute(:gender)
+      return read_attribute(:gender)
+    end
+  end
+
+  def gender_at_time datetime
+    judgments = self.account_gender_judgments.where("created_at <= '#{datetime.to_s(:db)}'").order("created_at ASC")
+    if judgments.size > 0
+      return judgments.last.gender
+    else
+      return read_attribute(:gender)
     end
   end
 end

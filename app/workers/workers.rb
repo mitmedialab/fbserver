@@ -8,7 +8,7 @@ require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
 class DataObject
   def initialize()
-    @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserver_development")
+    @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserver_production")
     #@db = Mysql.new("localhost", "fbserver", "", "fbserver_development")
     #@db = SQLite3::Database.new(File.join(File.dirname(__FILE__), "../../db/development.sqlite3"))
     @name_gender = NameGender.new

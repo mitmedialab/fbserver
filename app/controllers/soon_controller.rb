@@ -27,4 +27,12 @@ class SoonController < ApplicationController
     render :layout=>"main"
   end
 
+  def survey_records
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    redirect_to "/" and return if @current_user.nil? or !["natematias", "dearsarah"].include? @current_user.screen_name
+    @survey_records = User.where(:survey_complete=>true)
+
+    @all_records = User.all
+  end
+
 end

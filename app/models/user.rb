@@ -52,12 +52,33 @@ class User < ActiveRecord::Base
     end
   end
 
+  def followbias_at_time datetime
+    # get the report from that time
+    # if you want to calibrate it to specific friendrecords
+    # run this repeatedly for the dates of those friendrecords
+    friendrecord = self.friendsrecords.where("created_at <= '#{datetime.to_s(:db)}'").order("created_at ASC").last
+    return [] if friendrecord.nil?
+    score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
+    accounts = Account.where("uuid IN (?)", JSON.parse(friendrecord.friends))
+
+    accounts.each do |account|
+      gender = account.gender_at_time datetime
+      score[:male] += 1 if gender=="Male"
+      score[:female] += 1 if gender == "Female"
+      score[:total_following] += 1
+    end
+    score[:unknown] = score[:total_following] - score[:male] - score[:female]
+    score[:account] = self.screen_name
+    score
+  end
+
   def followbias
-    return nil if self.friendsrecords.last.nil? or self.friendsrecords.last.friends == ""
+    return nil if self.friendsrecords.order("created_at ASC").last.nil? or self.friendsrecords.order("created_at ASC").last.friends == ""
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
     self.all_friends.each do |account|
-      score[:male] += 1 if account.gender=="Male"
-      score[:female] += 1 if account.gender == "Female"
+      gender = account.gender
+      score[:male] += 1 if gender=="Male"
+      score[:female] += 1 if gender == "Female"
       score[:total_following] += 1
     end
     score[:unknown] = score[:total_following] - score[:male] - score[:female]

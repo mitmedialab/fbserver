@@ -360,7 +360,7 @@ var FollowBias = Backbone.View.extend({
 
     // handle account auto-scroll
     ap = $("#accounts_page");
-    if( $(window).scrollTop() + $(window).height() + 180 >= ap.offset().top + ap.height()){
+    if( $(window).scrollTop() + $(window).height() + 200 >= ap.offset().top + ap.height()){
       if(account_corrections.corrections_active){
         account_corrections.next_page();
       }

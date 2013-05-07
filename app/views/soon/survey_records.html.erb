@@ -1,0 +1,16 @@
+<pre>
+<h3>records where user has completed the survey</h3>
+screen_name,treatment,completed_survey
+<%@survey_records.each do |u|%>
+<%=u.screen_name%>,<%=u.treatment%>,<%=u.updated_at%>
+<% end %>
+</pre>
+
+<hr/>
+<pre>
+<h3>all records</h3>
+screen_name,treatment,completed_survey
+<%@all_records.each do |u|%>
+<%=u.screen_name%>,<%=u.treatment%>,<%=u.updated_at%>
+<% end %>
+</pre>

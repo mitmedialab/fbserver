@@ -453,3 +453,6 @@ a.btn{
 #post_survey .input-mini{
   width:25px; margin-left:5px;
 }
+#start{
+ z-index: 100;
+}
