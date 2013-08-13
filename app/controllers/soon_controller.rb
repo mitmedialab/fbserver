@@ -32,6 +32,8 @@ class SoonController < ApplicationController
     redirect_to "/" and return if @current_user.nil? or !["natematias", "dearsarah"].include? @current_user.screen_name
     @survey_records = User.where(:survey_complete=>true)
 
+    @post_users = User.where("post_survey is not null")
+
     @all_records = User.all
   end
 

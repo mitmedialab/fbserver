@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def followbias_at_time datetime
+  def followbias_at_time datetime, perception = true
     # get the report from that time
     # if you want to calibrate it to specific friendrecords
     # run this repeatedly for the dates of those friendrecords
@@ -62,7 +62,8 @@ class User < ActiveRecord::Base
     accounts = Account.where("uuid IN (?)", JSON.parse(friendrecord.friends))
 
     accounts.each do |account|
-      gender = account.gender_at_time datetime
+      gender = account.gender_at_time datetime if perception
+      gender = account.gender unless perception
       score[:male] += 1 if gender=="Male"
       score[:female] += 1 if gender == "Female"
       score[:total_following] += 1

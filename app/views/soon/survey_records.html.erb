@@ -6,6 +6,20 @@ screen_name,treatment,completed_survey
 <% end %>
 </pre>
 
+<pre>
+<%@post_users.each do |p|%>
+<strong>explain complexity</strong>
+ <%= JSON.parse(p.post_survey)["explain_complexity"]%>
+
+<strong>comments and ideas</strong>
+ <%= JSON.parse(p.post_survey)["comments_ideas"]%>
+-------------------------------------
+<% end %>
+
+</pre>
+
+<hr/>
+
 <hr/>
 <pre>
 <h3>all records</h3>
