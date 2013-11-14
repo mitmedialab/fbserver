@@ -28,4 +28,40 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 4, users(:one).sample_friends.size
   end
 
+  test "suggest account" do 
+    assert_no_difference 'accounts(:one).account_suggestion.users.size' do
+      assert_no_difference 'users(:one).all_suggested_accounts.size' do
+        users(:one).suggest_account(accounts(:one))
+      end
+    end
+
+    assert_difference 'users(:four).all_suggested_accounts.size', 1 do
+      assert_equal nil, accounts(:two).account_suggestion
+      users(:four).suggest_account(accounts(:two))
+      assert !accounts(:two).account_suggestion.nil?
+    end
+
+  end 
+
+  test "unsuggest account" do
+
+    assert_difference 'accounts(:one).account_suggestion.users.size', -1 do
+      assert_difference 'users(:one).all_suggested_accounts.size', -1 do
+        users(:one).unsuggest_account(accounts(:one))
+      end
+    end
+
+    assert_no_difference 'users(:four).all_suggested_accounts.size'  do
+       users(:four).unsuggest_account(accounts(:one))
+    end
+    
+  end
+
+  test "all suggested accounts" do
+    assert_equal 2, users(:one).all_suggested_accounts.size
+    assert_equal 1, users(:two).all_suggested_accounts.size
+    assert_equal 2, users(:three).all_suggested_accounts.size
+    assert_equal 0, users(:four).all_suggested_accounts.size
+  end
+
 end

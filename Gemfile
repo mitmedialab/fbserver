@@ -16,6 +16,7 @@ gem 'yaml_db'
 gem 'mysql', '~>2.8.1'
 gem 'mysql2'
 gem 'sqlite3'
+gem 'newrelic_rpm'
 
 
 # Gems used only for assets and not required

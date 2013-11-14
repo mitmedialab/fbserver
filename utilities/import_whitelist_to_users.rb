@@ -7,7 +7,7 @@ require 'resque-lock-timeout'
 
 class ProcessUserFriends
   extend Resque::Plugins::LockTimeout
-  @queue = :fetchfriends
+  @queue = "fetchfriends#{Rails.env}".to_sym
   @lock_timeout = 30
   def self.perform(authdata)
   end

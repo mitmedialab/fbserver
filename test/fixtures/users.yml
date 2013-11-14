@@ -6,6 +6,8 @@ one:
   uid: 101
   name: Kim Kierkegaardashian
   screen_name: kimkierkegaard
+  suggested_accounts: !str '["001","003"]'
+ 
 
 two:
   id: 2
@@ -14,6 +16,7 @@ two:
   name: Clark Kent
   screen_name: clarkkent
   treatment: test
+  suggested_accounts: !str '["001"]'
 
 three:
   id: 3
@@ -22,6 +25,7 @@ three:
   name: Jane Austen
   screen_name: janeausten
   treatment: ctl
+  suggested_accounts: !str '["001","003"]'
 
 four:
   id: 4

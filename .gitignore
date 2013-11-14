@@ -1,6 +1,10 @@
 config/initializers/omniauth.rb 
 *.swp
 db/development.sqlite3
+config/newrelic.yml
+*omniauth.rb
+*database.yml
+*surveys.rb
 public/assets
 utilities/*.csv
 tmp

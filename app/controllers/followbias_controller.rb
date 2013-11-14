@@ -7,7 +7,7 @@ require 'digest/sha1'
 #stub class
 class ProcessUserFriends
   extend Resque::Plugins::LockTimeout
-  @queue = :fetchfriends
+  @queue = "fetchfriends#{Rails.env}".to_sym
   @lock_timeout = 3600
   def self.perform(authdata)
   end

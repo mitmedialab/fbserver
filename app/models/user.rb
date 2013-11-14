@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   attr_accessible :name, :provider, :uid, :screen_name, :twitter_token, :twitter_secret
   has_many :friendsrecords
   has_many :account_gender_judgments
+
   def self.create_with_omniauth(auth)
     create! do |user|
       user.provider = auth["provider"]
@@ -14,6 +15,37 @@ class User < ActiveRecord::Base
       user.twitter_secret = auth['credentials']['secret']
       puts auth['credentials']
     end
+  end
+
+  def suggest_account account
+    uuid = account.uuid.to_i
+    all_suggested = self.all_suggested_accounts
+
+    if !all_suggested.include? uuid  
+      all_suggested << uid
+      self.suggested_accounts = all_suggested.to_json
+      self.save
+    end
+
+    suggestion = account.get_account_suggestion
+    if !suggestion.users.include? self.uid.to_i
+      suggestion.add_user self
+    end
+  end
+
+  def all_suggested_accounts
+    return [] if self.suggested_accounts.nil?
+    JSON.parse(self.suggested_accounts).collect{|i|i.to_i}
+  end
+
+  def unsuggest_account account
+    # remove user from account
+    accounts = self.all_suggested_accounts 
+    accounts.delete account.uuid.to_i
+    self.suggested_accounts = accounts.to_json
+    self.save
+    #remove suggestion from user
+    account.account_suggestion.remove_user self
   end
 
   def all_friends

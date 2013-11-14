@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+# This model initially had no columns defined.  If you add columns to the
+# model remove the '{}' from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+one: 
+  account_id: 1
+  suggesters: !str '["101","102","103"]'
+
+two: 
+  account_id: 3
+  suggesters: !str '["101","103"]'
+
+three: 
+  account_id: 4
+  suggesters: !str '[]'
