@@ -17,18 +17,23 @@ class User < ActiveRecord::Base
     end
   end
 
+  #TODO: write a test for this method
+  def suggests_account? account
+    self.all_suggested_accounts.include? account.uuid.to_i
+  end
+
   def suggest_account account
     uuid = account.uuid.to_i
     all_suggested = self.all_suggested_accounts
 
     if !all_suggested.include? uuid  
-      all_suggested << uid
+      all_suggested << uuid
       self.suggested_accounts = all_suggested.to_json
-      self.save
+      self.save!
     end
 
     suggestion = account.get_account_suggestion
-    if !suggestion.users.include? self.uid.to_i
+    if suggestion.users.nil? or !suggestion.users.include? self.uid.to_i
       suggestion.add_user self
     end
   end

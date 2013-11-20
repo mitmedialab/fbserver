@@ -55,7 +55,7 @@ class FollowbiasController < ApplicationController
 
   def show_gender_samples
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
-    @user = User.find_by_screen_name(params[:id])
+    @user = User.find_by_uid(params[:id])
     redirect_to "/" and return if @user.nil?
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
     respond_to do |format|
@@ -79,6 +79,35 @@ class FollowbiasController < ApplicationController
     end
 
     render :json => {:account => @account.screen_name, :gender=> @account.gender}
+  end
+
+  def toggle_suggest
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    redirect_to "/" and return if @current_user.nil?
+
+    @account = Account.find_by_uuid(params[:uuid])
+    @status = nil
+
+    if(@account.gender == "Female")
+
+      if(@current_user.suggests_account? @account)
+        @current_user.unsuggest_account @account
+        @status = false
+      else
+        @current_user.suggest_account @account
+        @status = true
+      end
+
+    else
+      @status = false
+    end
+
+    respond_to do |format|
+      format.json{
+        render :json => {:status => @status,
+                         :account_id => @account.uuid}
+      }
+    end
   end
   
   def start

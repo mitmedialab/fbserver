@@ -12,7 +12,8 @@ var AccountCorrections = Backbone.View.extend({
   el:"#help",
   events:{
     "click .correction" : "correct_account",
-    "click #start_corrections":"start_corrections"
+    "click #start_corrections":"start_corrections",
+    "click .suggestion" : "toggle_suggest_account"
   },
   
   initialize: function(){
@@ -31,6 +32,22 @@ var AccountCorrections = Backbone.View.extend({
       this.fetching_corrections = true;
       this.fetch_corrections_page(this.current_page+1);
     }
+  },
+
+  toggle_suggest_account: function(e){
+    el = $(e.target);
+    if(el.hasClass("none")){
+      return;
+    }
+    p = el.parent().parent();
+    id = p.attr("data-id");
+    jQuery.post("/followbias/toggle_suggest", {uuid: p.attr("data-id"),  authenticity_token: AUTH_TOKEN}, function(data){
+      if(data.status){
+        el.addClass("selected");
+      }else{
+        el.removeClass("selected");
+      }
+    });
   },
 
   correct_account: function(e){

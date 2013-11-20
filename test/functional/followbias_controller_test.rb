@@ -69,6 +69,41 @@ class FollowbiasControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "toggle user suggests account" do
+
+    # no authentication
+    post :toggle_suggest, :uuid => "corporation"
+    assert_redirected_to "/"
+
+    session[:user_id] = users(:one).id
+    # not female, can't suggest
+    post :toggle_suggest, :format=>'json', :uuid => accounts(:seven).uuid
+    assert_response :success
+    json_data = JSON.load(response.body)
+    assert_equal accounts(:seven).uuid, json_data["account_id"]
+    assert_equal false, json_data["status"]
+    assert_equal false, users(:one).suggests_account?(accounts(:seven))
+
+    # female, can suggest, toggle to true
+    user = users(:one)
+    post :toggle_suggest, :format=>'json', :uuid => accounts(:five).uuid
+    assert_response :success
+    json_data = JSON.load(response.body)
+    assert_equal accounts(:five).uuid, json_data["account_id"]
+    assert_equal true, json_data["status"]
+    user.reload
+    assert_equal true, user.suggests_account?(accounts(:five))
+
+    # female, can suggest, toggle to false
+    post :toggle_suggest, :format=>'json', :uuid => accounts(:five).uuid
+    assert_response :success
+    json_data = JSON.load(response.body)
+    assert_equal accounts(:five).uuid, json_data["account_id"]
+    assert_equal false, json_data["status"]
+    user.reload
+    assert_equal false, user.suggests_account?(accounts(:five))
+  end
+
   test "correct" do
     post :correct, :screen_name => "maleperson", :gender=>"Unknown"
     assert_equal "error", JSON.load(response.body)["status"]

@@ -143,6 +143,11 @@
 			<div class="correction Female {{if(account.gender=="Female"){ }}selected{{ } }}" data-gender="Female">F</div>
 			<div class="correction Unknown {{if(account.gender=="Unknown"){ }}selected{{ } }}" data-gender="Unknown">B</div>
 			<div class="correction Omit" data-gender="Omit">X</div>
+      {{if(account.gender=="Female"){  }}
+			  <div class="suggestion">&#10030;</div>
+      {{ }else{ }}
+        <div class="suggestion none">&#10030;</div>  
+      {{ } }}
 	 </span>
 	</div>
 </script>
