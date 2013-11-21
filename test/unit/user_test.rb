@@ -16,7 +16,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "follow bias" do
-    assert_equal nil,  users(:four).followbias
+    empty = {:male=>0, :female=>0 , :unknown=>0, :total_following=>0, :account=>"nofriends"}
+    assert_equal empty,  users(:four).followbias
     bias = users(:one).followbias
     assert_equal 2, bias[:male]
     assert_equal 1, bias[:female]
@@ -62,6 +63,15 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 1, users(:two).all_suggested_accounts.size
     assert_equal 2, users(:three).all_suggested_accounts.size
     assert_equal 0, users(:four).all_suggested_accounts.size
+  end
+
+
+  test "receive random suggestions" do
+    users(:four).suggest_account(accounts(:seven))
+    assert_equal 0, users(:three).receive_random_suggestions(100).size
+    assert_equal 1, users(:one).receive_random_suggestions(100).size
+    assert_equal 3, users(:four).receive_random_suggestions(100).size
+    assert_equal 2, users(:four).receive_random_suggestions(2).size
   end
 
 end

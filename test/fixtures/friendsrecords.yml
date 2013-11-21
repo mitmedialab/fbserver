@@ -20,6 +20,6 @@ three:
 
 four:
   user_id: 4
-  friends: ""
+  friends: !str '[]'
 
 #  column: value

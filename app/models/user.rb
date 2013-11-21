@@ -43,6 +43,28 @@ class User < ActiveRecord::Base
     JSON.parse(self.suggested_accounts).collect{|i|i.to_i}
   end
 
+  def receive_random_suggestions count
+
+    results = []
+    follow_list = JSON.parse(self.friendsrecords.last.friends).collect{|i|i.to_i}
+
+    #fetch a list of all accounts that the user doesn't already follow
+    all_suggestions = AccountSuggestion.where("CHAR_LENGTH(suggesters) >2").find_all{|suggestion| !follow_list.include?(suggestion.account.uuid) }
+
+    return all_suggestions if all_suggestions.size <= count
+    
+    result_keys = []
+    while(result_keys.size < count )
+      n = Random.rand(all_suggestions.size)
+      if(!result_keys.include?(n))
+        result_keys << n
+      end
+    end
+    
+    # return the accounts associated with suggestion results
+    result_keys.collect{|i| all_suggestions[i].account}
+  end
+
   def unsuggest_account account
     # remove user from account
     accounts = self.all_suggested_accounts 
