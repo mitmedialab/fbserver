@@ -72,6 +72,9 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 1, users(:one).receive_random_suggestions(100).size
     assert_equal 3, users(:four).receive_random_suggestions(100).size
     assert_equal 2, users(:four).receive_random_suggestions(2).size
+
+    assert_equal "Account", users(:four).receive_random_suggestions(2)[0].class.name
+    assert_equal "Account", users(:one).receive_random_suggestions(2)[0].class.name
   end
 
 end

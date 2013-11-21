@@ -51,7 +51,7 @@ class User < ActiveRecord::Base
     #fetch a list of all accounts that the user doesn't already follow
     all_suggestions = AccountSuggestion.where("CHAR_LENGTH(suggesters) >2").find_all{|suggestion| !follow_list.include?(suggestion.account.uuid) }
 
-    return all_suggestions if all_suggestions.size <= count
+    return all_suggestions.collect{|i|i.account} if all_suggestions.size <= count
     
     result_keys = []
     while(result_keys.size < count )
