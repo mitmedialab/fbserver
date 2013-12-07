@@ -1,6 +1,11 @@
-
+# to use the gemset
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+rvm use ruby-1.9.3-p385@followbias-dev 
 #to start the Resque worker
 export RESQUE_WORKER=true
 QUEUE=fetchfriends rake resque:work
+
+#load resque-web
+load: hypatia.media.mit.edu:5678
 
 

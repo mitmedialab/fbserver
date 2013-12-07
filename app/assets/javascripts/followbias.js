@@ -21,10 +21,23 @@ var AccountCorrections = Backbone.View.extend({
     this.label_template = _.template("({{=page}}/{{=pages}})")
     this.corrections_paragraph = _.template($("#corrections_paragraph").html())
     this.corrections_progress_label = _.template($("#corrections_progress_label").html());
+    this.recommended_account_template = _.template($("#recommended_account_template").html());
     this.corrections_active = false;
     this.fetching_corrections = false;
     $(".prev-page").hide();
   },
+
+
+  receive_suggestions: function(){
+    var container = $("#recommendation_container");
+    container.html('');
+    jQuery.get("/followbias/receive_suggestions", function(data){
+      _.each(data.accounts, function(account){
+        container.append(this.recommended_account_template(account));
+      }.bind(this));
+    }.bind(this));
+  }, 
+
 
   next_page: function(){
     //$(".prev-page").show();
@@ -155,6 +168,7 @@ var FollowBias = Backbone.View.extend({
       this.fetch_followbias();
     }else{
       this.render_glasses();
+      account_corrections.receive_suggestions(); 
       if(!this.survey_viewed){
         post_survey.start_survey_timer();
         this.survey_viewed = true;

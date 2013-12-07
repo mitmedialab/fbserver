@@ -10,13 +10,15 @@ class FollowbiasControllerTest < ActionController::TestCase
     get :show, :id=>users(:one).screen_name
     assert_redirected_to "/"
 
-    session[:user_id] = users(:one).id
-    get :show, :id => users(:one).screen_name
-    assert_equal users(:one), assigns(:user)
-    assert_equal 2, assigns(:followbias)[:male]
-    assert_equal 1, assigns(:followbias)[:female]
-    assert_equal 1, assigns(:followbias)[:unknown]
-    assert_equal 4, assigns(:followbias)[:total_following]
+    assert_difference 'ActivityLog.all.size', 1 do
+      session[:user_id] = users(:one).id
+      get :show, :id => users(:one).screen_name
+      assert_equal users(:one), assigns(:user)
+      assert_equal 2, assigns(:followbias)[:male]
+      assert_equal 1, assigns(:followbias)[:female]
+      assert_equal 1, assigns(:followbias)[:unknown]
+      assert_equal 4, assigns(:followbias)[:total_following]
+    end
   end
 
   test 'show page' do
@@ -25,15 +27,19 @@ class FollowbiasControllerTest < ActionController::TestCase
 
     session[:user_id ] = users(:one).id
 
-    get :show_page, :format=>'json', :id=>users(:one).screen_name, :page=>0
-    assert_equal 4, assigns(:friends).size
-    json_data = JSON.load(response.body)
-    assert_equal 1, json_data["next_page"]
+    assert_difference 'ActivityLog.all.size', 1 do
+      get :show_page, :format=>'json', :id=>users(:one).screen_name, :page=>0
+      assert_equal 4, assigns(:friends).size
+      json_data = JSON.load(response.body)
+      assert_equal 1, json_data["next_page"]
+    end
     
-    get :show_page, :format=>'json', :id=>users(:one).screen_name, :page=>1
-    assert_equal 0, assigns(:friends).size
-    json_data = JSON.load(response.body)
-    assert_equal nil, json_data["next_page"]
+    assert_difference 'ActivityLog.all.size', 1 do
+      get :show_page, :format=>'json', :id=>users(:one).screen_name, :page=>1
+      assert_equal 0, assigns(:friends).size
+      json_data = JSON.load(response.body)
+      assert_equal nil, json_data["next_page"]
+    end
     
   end
 
@@ -65,8 +71,10 @@ class FollowbiasControllerTest < ActionController::TestCase
   end
 
   test "main test user" do
-    get :main, nil, {:user_id=>users(:two).id}
-    assert_response :success
+    assert_difference 'ActivityLog.all.size', 1 do
+      get :main, nil, {:user_id=>users(:two).id}
+      assert_response :success
+    end
   end
 
   test "toggle user suggests account" do
@@ -104,6 +112,28 @@ class FollowbiasControllerTest < ActionController::TestCase
     assert_equal false, user.suggests_account?(accounts(:five))
   end
 
+
+  test "receive random account suggestions for user three" do
+    # no authentication
+    get :receive_suggestions, :format=>'json'
+    assert_redirected_to "/"
+
+    session[:user_id] = users(:three)
+    get :receive_suggestions, :format=>'json'
+    assert_response :success
+    rdata = JSON.load(response.body)
+    assert_equal 0, rdata["accounts"].size
+  end
+
+  test "receive random account suggestions for user one" do
+    users(:four).suggest_account(accounts(:seven))
+    session[:user_id] = users(:one)
+    get :receive_suggestions, :format=>'json'
+    assert_response :success
+    rdata = JSON.load(response.body)
+    assert_equal 1, rdata["accounts"].size
+  end
+
   test "correct" do
     post :correct, :screen_name => "maleperson", :gender=>"Unknown"
     assert_equal "error", JSON.load(response.body)["status"]
@@ -116,5 +146,12 @@ class FollowbiasControllerTest < ActionController::TestCase
     accounts(:one).reload
     assert_equal "Unknown", accounts(:one).gender
     assert_equal "Unknown", JSON.load(response.body)["gender"]
+  end
+
+  test "final survey" do
+    ## TODO: recreate authenticity token and post survey results
+    ## assert that survey is added
+    ## assert_difference 'ActivityLog.all.size', 1 do
+    assert true
   end
 end

@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   attr_accessible :name, :provider, :uid, :screen_name, :twitter_token, :twitter_secret
   has_many :friendsrecords
   has_many :account_gender_judgments
+  has_many :activity_logs
 
   def self.create_with_omniauth(auth)
     create! do |user|

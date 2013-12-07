@@ -9,11 +9,13 @@ class SessionsController < ApplicationController
       user.save!
     end
     session[:user_id] = user.id
+    user.activity_logs.create(:action=>"login")
     redirect_to "/followbias/main", :notice => "Signed in!"
   end
 
   def destroy
     session[:user_id] = nil
+    user.activity_logs.create(:action=>"signout")
     redirect_to root_url, :notice => "Signed out!"
   end
 end

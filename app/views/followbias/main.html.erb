@@ -86,6 +86,12 @@
   <div class="row" id="help">
     <div class="section">
 			<h2 id="scroll_improve">Improve Your Data</h2>
+
+       <!-- current placeholder for the recommendations system -->
+       <p>Change who you follow:</p>
+       <div align="center" id="recommendation_container"></div>
+       <!-- end recommendations system -->
+
       <hr/>
       <p>Improve the accuracy of your FollowBias by correcting the gender of the accounts you follow. Your corrections will improve all FollowBias data!</p>
       <p><strong>Please be sensitive to people's privacy</strong> by only revealing information that's already public. <strong>If the person you follow doesn't identify as male or female</strong> please do not reveal their gender. For those who prefer not to divulge or identify otherwise, please label those accounts as "brands, bots, &amp; more."</p>
@@ -152,6 +158,17 @@
 	</div>
 </script>
 
+<script id="recommended_account_template" type="text/template">
+  <div class="correct_account recommendation">
+    <a href="https://twitter.com/intent/user?user_id={{=uuid}}"><img src="{{=profile_image_url}}" width="48" height="48"/></a>
+    <span class="account">
+      <span class="name">{{=name}}</span>
+      <a class="screen_name" href="https://twitter.com/intent/user?user_id={{=uuid}}">@{{=screen_name}}</a>
+    </span>
+  </div>
+</script>
+
 <script type="text/javascript" language="Javascript">
   var followbias_screen_name = "<%=current_user.screen_name%>";
 </script>
+

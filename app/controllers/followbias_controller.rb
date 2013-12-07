@@ -3,6 +3,7 @@ require "resque"
 #require 'resque/plugins/lock'
 require 'resque-lock-timeout'
 require 'digest/sha1'
+require 'json'
 
 #stub class
 class ProcessUserFriends
@@ -22,6 +23,9 @@ class FollowbiasController < ApplicationController
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
     @friends = @user.all_friends.sort{|a,b| a.gender <=> b.gender}
     @followbias = @user.followbias
+
+    @current_user.activity_logs.create(:action => "followbias/show",
+      :data => {:followbias=>@followbias, :friends=>@friends}.to_json)
     respond_to do |format|
       format.html{
         render :layout=> false
@@ -45,6 +49,9 @@ class FollowbiasController < ApplicationController
 
     next_page = params[:page].to_i + 1
     next_page = nil if @friends.size == 0
+
+    @current_user.activity_logs.create(:action => "followbias/show_page",
+      :data => {:page=>params[:page]}.to_json)
 
     respond_to do |format|
       format.json{
@@ -109,6 +116,19 @@ class FollowbiasController < ApplicationController
       }
     end
   end
+
+  def receive_suggestions
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    redirect_to "/" and return if @current_user.nil?
+   
+    accounts = @current_user.receive_random_suggestions(10)
+
+    respond_to do |format|
+      format.json{
+        render :json => {:accounts=>accounts}
+      }
+    end
+  end
   
   def start
     @current_user ||= User.find(session[:user_id]) if session[:user_id]  
@@ -125,15 +145,19 @@ class FollowbiasController < ApplicationController
     if(!@current_user.survey_complete and 
        (@current_user.treatment == "ctl" or @current_user.treatment == "test"))
       if(!params.has_key? "survey")
+        @current_user.activity_logs.create(:action => "redirect_to_pre_survey")
         redirect_to ENV_SURVEYS[@current_user.id % ENV_SURVEYS.size] + "&user_id=#{Digest::SHA1.hexdigest(@current_user.screen_name)}"and return
       else
+        @current_user.activity_logs.create(:action => "pre_survey_complete")
         @current_user.survey_complete = true
         @current_user.save!
       end
     end
     #send the control group and all new users to the "soon" page
-    redirect_to "/soon" and return if @current_user.treatment == "ctl" or @current_user.treatment == "new"
- 
+    if @current_user.treatment == "ctl" or @current_user.treatment == "new"
+      redirect_to "/soon" and return 
+    end
+
     authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
                 :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                 :oauth_token => @current_user['twitter_token'],
@@ -168,6 +192,7 @@ class FollowbiasController < ApplicationController
     redirect_to "/" and return if @current_user.nil?
     result = params
     result.delete("authenticity_token")
+    @current_user.activity_logs.create(:action => "final_survey_complete")
     #if(@current_user.post_survey.nil?)
       @current_user.post_survey = result.to_json
       @current_user.save!

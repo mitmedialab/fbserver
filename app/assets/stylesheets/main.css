@@ -245,6 +245,12 @@ a.btn{
   width:80%;
 }
 
+.correct_account.recommendation{
+  width:201px;
+  display:inline-block;
+  text-align:left;
+}
+
 .correct_account img{
   border-radius:5px;
   vertical-align:top;

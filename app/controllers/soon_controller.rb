@@ -24,9 +24,11 @@ class SoonController < ApplicationController
                 :oauth_token_secret => @current_user['twitter_secret']}
     Resque.enqueue(ProcessUserFriends, authdata)
 
+    @current_user.activity_logs.create(:action=>"soon/index")
     render :layout=>"main"
   end
 
+  #SHOW ALL SURVEY RECORDS
   def survey_records
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
     redirect_to "/" and return if @current_user.nil? or !["natematias", "dearsarah"].include? @current_user.screen_name
@@ -35,6 +37,7 @@ class SoonController < ApplicationController
     @post_users = User.where("post_survey is not null")
 
     @all_records = User.all
+
   end
 
 end
