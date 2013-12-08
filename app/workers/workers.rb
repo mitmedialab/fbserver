@@ -1,4 +1,5 @@
 # -*- encoding : utf-8 -*-
+require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment.rb')
 require 'resque'
 require 'twitter'
 require 'json'
@@ -8,7 +9,8 @@ require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
 class DataObject
   def initialize()
-    @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserver_production")
+    #TODO: key to rails env
+    @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserverdev_development")
     #@db = Mysql.new("localhost", "fbserver", "", "fbserver_development")
     #@db = SQLite3::Database.new(File.join(File.dirname(__FILE__), "../../db/development.sqlite3"))
     @name_gender = NameGender.new
@@ -76,7 +78,7 @@ class DataObject
 end
 
 class ProcessUserFriends
-  @queue = :fetchfriends
+  @queue = "fetchfriends#{Rails.env}".to_sym
 
   def self.perform(authdata)
     db = DataObject.new
