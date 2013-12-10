@@ -85,6 +85,9 @@ class FollowbiasController < ApplicationController
       @account.account_gender_judgments.create! :user_id=>@current_user.id, :gender=>params[:gender]
     end
 
+    @current_user.activity_logs.create(:action => "followbias/correct",
+      :data => {:account=>@account.uuid, 
+      :id=>@account.account_gender_judgments.last.id})
     render :json => {:account => @account.screen_name, :gender=> @account.gender}
   end
 
@@ -104,6 +107,9 @@ class FollowbiasController < ApplicationController
         @current_user.suggest_account @account
         @status = true
       end
+
+    @current_user.activity_logs.create(:action => "followbias/toggle_suggest",
+      :data => {:account=>@account.uuid})
 
     else
       @status = false

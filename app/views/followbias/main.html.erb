@@ -139,10 +139,10 @@
 
 <script id="correct_account_template" type="text/template">
 	<div class="correct_account" data-id="{{=account.uuid}}">
-		<img src="{{=account.profile_image_url}}" width="48" height="48"/>
+    <a href="https://twitter.com/intent/user?user_id={{=account.uuid}}" onclick="follow_bias.clicked_corrections_screen_name('{{=account.screen_name}}');"><img src="{{=account.profile_image_url}}" width="48" height="48"/></a>
 		<span class="account">
 			<span class="name">{{=account.name}}</span>
-			<a class="screen_name" href="https://twitter.com/{{=account.screen_name}}">@{{=account.screen_name}}</a>
+			<a class="screen_name" href="https://twitter.com/intent/user?user_id={{=account.uuid}}" onclick="follow_bias.clicked_corrections_screen_name('{{=account.screen_name}}');">@{{=account.screen_name}}</a>
 		</span>
 		<span class="corrections">
 			<div class="correction Male {{if(account.gender=="Male"){ }}selected{{ } }}" data-gender="Male">M</div>
@@ -160,10 +160,10 @@
 
 <script id="recommended_account_template" type="text/template">
   <div class="correct_account recommendation">
-    <a href="https://twitter.com/intent/user?user_id={{=uuid}}"><img src="{{=profile_image_url}}" width="48" height="48"/></a>
+    <a href="https://twitter.com/intent/user?user_id={{=uuid}}" onclick="follow_bias.clicked_suggestions_screen_name('{{=screen_name}}');"><img src="{{=profile_image_url}}" width="48" height="48"/></a>
     <span class="account">
       <span class="name">{{=name}}</span>
-      <a class="screen_name" href="https://twitter.com/intent/user?user_id={{=uuid}}">@{{=screen_name}}</a>
+      <a class="screen_name" href="https://twitter.com/intent/user?user_id={{=uuid}}"onclick="follow_bias.clicked_suggestions_screen_name('{{=screen_name}}');">@{{=screen_name}}</a>
     </span>
   </div>
 </script>
