@@ -8,4 +8,6 @@ QUEUE=fetchfriends rake resque:work
 #load resque-web
 load: hypatia.media.mit.edu:5678
 
-
+# create FollowBias System User
+cd utilities/
+ruby create_FollowbiasSystem_user.rb 
