@@ -3,7 +3,7 @@
 rvm use ruby-1.9.3-p385@followbias-dev 
 #to start the Resque worker
 export RESQUE_WORKER=true
-QUEUE=fetchfriends rake resque:work
+TERM_CHILD=1 QUEUE=fetchfriendsproduction rake resque:work
 
 #load resque-web
 load: hypatia.media.mit.edu:5678
