@@ -146,6 +146,7 @@ var AccountCorrections = Backbone.View.extend({
 var FollowBias = Backbone.View.extend({
   el:"#background",
   events:{
+    // "click a.screen_name": "clicked_screen_name"
 /*    "click .correction": "correct_account"*/
   },
   
@@ -161,6 +162,8 @@ var FollowBias = Backbone.View.extend({
     $(window).bind("scroll", _.bind(this.scroll, this));
   },
 
+  // TODO: Fix bug that reloads the app every time you resize
+  // the page
   render: function(){
     if(this.followbias_data == null){
       this.render_base_circle();
@@ -178,6 +181,21 @@ var FollowBias = Backbone.View.extend({
         account_corrections.fetch_gender_samples();
       }
     }
+  },
+
+  clicked_suggestions_screen_name: function(name){
+    this.activity_log("clicked_suggestions_screen_name", name); 
+  },
+
+  clicked_corrections_screen_name: function(name){
+    this.activity_log("clicked_corrections_screen_name", name); 
+  },
+
+  activity_log: function(action, data){
+    jQuery.post("/activity/log", {action:action, data:data,  authenticity_token: AUTH_TOKEN}, function(data){
+      console.log(data);
+    });
+
   },
 
   fetch_followbias: function(){
