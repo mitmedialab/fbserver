@@ -6,8 +6,8 @@ require 'json'
 require 'mysql2'
 require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
-
 class DataObject
+  attr_reader :system_user
   def initialize()
     #TODO: key to rails env
     @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserver_#{Rails.env}")
@@ -54,14 +54,23 @@ class DataObject
 
   def save_account(account)
     #begin
-    print "."
       if(@db.query("select 1 from accounts where screen_name='#{account.screen_name}'").size == 0)
-      gender = @name_gender.process(account.name)[:result]
         #@db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
+        gender = @name_gender.process(account.name)[:result]
         query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{gender}')"
         @db.query(query)
+
+        #puts "CREATING AUTO RECORD"
         rails_acct = Account.find_by_screen_name(account.screen_name)
+        #puts rails_acct.screen_name
+        #puts @system_user.screen_name
+        #puts @system_user.account_gender_judgments.size
+        #puts gender
         judgment = @system_user.account_gender_judgments.create({:account_id => rails_acct.id, :gender=> gender})
+        #puts judgment
+        puts "o"
+      else
+        print "."
       end
     #end
   end
