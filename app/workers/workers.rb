@@ -14,6 +14,7 @@ class DataObject
     #@db = Mysql.new("localhost", "fbserver", "", "fbserver_development")
     #@db = SQLite3::Database.new(File.join(File.dirname(__FILE__), "../../db/development.sqlite3"))
     @name_gender = NameGender.new
+    @system_user = User.find_by_screen_name("FollowBias System")
   end
 
   def user_exists? screen_name
@@ -51,9 +52,12 @@ class DataObject
     #begin
     print "."
       if(@db.query("select 1 from accounts where screen_name='#{account.screen_name}'").size == 0)
+      gender = @name_gender.process(account.name)[:result]
         #@db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
-        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{@name_gender.process(account.name)[:result]}')"
+        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{gender}')"
         @db.query(query)
+        rails_acct = Account.find_by_screen_name(account.screen_name)
+        judgment = @system_user.account_gender_judgments.create({:account_id => rails_acct.id, :gender=> gender})
       end
     #end
   end
