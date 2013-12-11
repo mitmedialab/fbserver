@@ -16,7 +16,9 @@ end
 user_counter = 0 
 users = User.where("twitter_token IS NOT NULL and twitter_secret IS NOT NULL")
 
-whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp'")
+whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' AND failed!=true")
+
+puts "whitelist #{whitelist.size}"
 
 whitelist.each do |row|
   screen_name = row.screen_name
