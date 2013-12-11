@@ -10,7 +10,7 @@ require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 class DataObject
   def initialize()
     #TODO: key to rails env
-    @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserverdev_development")
+    @db = Mysql2::Client.new(:host => "localhost", :username => "fbserver", :database=>"fbserver_#{Rails.env}")
     #@db = Mysql.new("localhost", "fbserver", "", "fbserver_development")
     #@db = SQLite3::Database.new(File.join(File.dirname(__FILE__), "../../db/development.sqlite3"))
     @name_gender = NameGender.new
@@ -18,6 +18,10 @@ class DataObject
 
   def user_exists? screen_name
     @db.query("select 1 from users where screen_name='#{screen_name}'").size > 0
+  end
+
+  def block_api_user a
+    @db.query("UPDATE users set failed=1 WHERE screen_name = #{a.followbias_user}")
   end
 
   def create_user t
@@ -90,7 +94,7 @@ class ProcessUserFriends
     end
 
     puts "connecting to client"
-    client = self.catch_rate_limit{
+    client = self.catch_rate_limit(authdata, db){
       Twitter::Client.new(authdata)
     }
 
@@ -116,7 +120,7 @@ class ProcessUserFriends
 
 
     while cursor != 0 do
-      friendships = self.catch_rate_limit {
+      friendships = self.catch_rate_limit(authdata, db) {
         client.friend_ids(followbias_user.attrs[:id], {:cursor=>cursor})
       }
       cursor = friendships.next_cursor
@@ -145,7 +149,7 @@ class ProcessUserFriends
 
       puts "new follows: #{new_follows[head, 100]}"
 
-      all_follow_data.concat self.catch_rate_limit{
+      all_follow_data.concat self.catch_rate_limit(authdata, db){
         client.users(new_follows[head, 100], :method => :post)
       }
       head += 100
@@ -162,7 +166,7 @@ class ProcessUserFriends
    puts "FRIENDS SAVED"
   end
 
-  def self.catch_rate_limit
+  def self.catch_rate_limit(authdata, db)
     num_attempts = 0
     begin
       num_attempts += 1
@@ -183,6 +187,7 @@ class ProcessUserFriends
       sleep(8)
       retry
     rescue Twitter::Error::Forbidden => error
+      db.block_api_user(authdata)
       return []
     rescue Twitter::Error::ServiceUnavailable => error
       puts "Twitter::Error:ServiceUnavailable -- retrying"

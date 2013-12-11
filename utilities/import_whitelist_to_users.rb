@@ -14,7 +14,7 @@ class ProcessUserFriends
 end
 
 user_counter = 0 
-users = User.where("twitter_token IS NOT NULL")
+users = User.where("twitter_token IS NOT NULL AND failed != true")
 
 whitelist = CSV.read(ARGV[0])
 
