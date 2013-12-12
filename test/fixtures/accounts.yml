@@ -17,7 +17,7 @@ two:
   uuid: 002
   screen_name: femaleperson
   name: Louis Lane
-  gender: Female
+  gender: Male # used to be female, but changed to reflect the caching system
   profile_image_url:
 
 three:

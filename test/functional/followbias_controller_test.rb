@@ -3,9 +3,6 @@ require 'json'
 
 class FollowbiasControllerTest < ActionController::TestCase
 
-  def setup
-  end
-
   test "show followbias" do
     get :show, :id=>users(:one).screen_name
     assert_redirected_to "/"

@@ -33,3 +33,9 @@ four:
   uid: 104
   name: No Friends
   screen_name: nofriends
+
+system:
+  id: 5
+  uid: -1
+  screen_name: FollowBias System
+  treatment: system

@@ -4,11 +4,21 @@ class Account < ActiveRecord::Base
   has_one :account_suggestion
   has_many :account_gender_judgments
   def gender
-    if self.account_gender_judgments.size >  0
-      return self.account_gender_judgments.order("created_at ASC").last.gender
-    else
+    # now that we're (in principle) caching the latest judgment
+    # into this table, there's no need for this query
+    #if self.account_gender_judgments.size >  0
+    #  return self.account_gender_judgments.order("created_at ASC").last.gender
+    #else
       return read_attribute(:gender)
-    end
+    #end
+  end
+
+  def correct_gender user, gender
+    return nil if !(["Male", "Female", "Unknown"].include? gender)
+    self.account_gender_judgments.create({:user_id=>user.id, :gender=>gender})
+    self.gender = gender
+    self.save
+    return gender
   end
 
   def get_account_suggestion
