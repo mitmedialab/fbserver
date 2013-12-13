@@ -21,7 +21,7 @@ class FollowbiasControllerTest < ActionController::TestCase
     end
   end
 
-  test 'show page' do
+  test 'show page of corrections' do
     get :show_page, :id=>users(:one).screen_name, :page=>0
     assert_redirected_to "/"
 

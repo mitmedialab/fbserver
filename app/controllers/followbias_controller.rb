@@ -45,7 +45,17 @@ class FollowbiasController < ApplicationController
     redirect_to "/" and return if @user.nil? or params[:page].nil?
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
 
-    @friends = @user.all_friends_paged(page_size, page_size * params[:page].to_i)
+    @friends = @user.all_friends_paged(page_size, page_size * params[:page].to_i).collect{|friend|
+      status = "" 
+      status = "selected" if @user.suggests_account? friend
+      {:gender => friend.gender,
+       :id => friend.id,
+       :uuid => friend.uuid,
+       :name => friend.name,
+       :profile_image_url => friend.profile_image_url,
+       :screen_name => friend.screen_name,
+       :selected => status}
+    }
 
     next_page = params[:page].to_i + 1
     next_page = nil if @friends.size == 0
@@ -54,6 +64,9 @@ class FollowbiasController < ApplicationController
       :data => {:page=>params[:page]}.to_json)
 
     respond_to do |format|
+      format.html{
+        render :layout=> false
+      }
       format.json{
         render :json => {:friends=>@friends, :next_page=>next_page, :page_size => page_size}
       }
@@ -62,7 +75,7 @@ class FollowbiasController < ApplicationController
 
   def show_gender_samples
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
-    @user = User.find_by_uid(params[:id])
+    @user = User.find_by_screen_name(params[:id])
     redirect_to "/" and return if @user.nil?
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
     respond_to do |format|
@@ -98,7 +111,8 @@ class FollowbiasController < ApplicationController
     @account = Account.find_by_uuid(params[:uuid])
     @status = nil
 
-    if(@account.gender == "Female")
+    # make a change if the account is female or we're unsuggesting
+    if(@account.gender == "Female" or @current_user.suggests_account? @account)
 
       if(@current_user.suggests_account? @account)
         @current_user.unsuggest_account @account
@@ -130,6 +144,9 @@ class FollowbiasController < ApplicationController
     accounts = @current_user.receive_random_suggestions(10)
 
     respond_to do |format|
+      format.html{
+        render :layout=> false
+      }
       format.json{
         render :json => {:accounts=>accounts}
       }

@@ -24,6 +24,7 @@ var AccountCorrections = Backbone.View.extend({
     this.recommended_account_template = _.template($("#recommended_account_template").html());
     this.corrections_active = false;
     this.fetching_corrections = false;
+    this.gender_samples_fetched = false;
     $(".prev-page").hide();
   },
 
@@ -31,7 +32,7 @@ var AccountCorrections = Backbone.View.extend({
   receive_suggestions: function(){
     var container = $("#recommendation_container");
     container.html('');
-    jQuery.get("/followbias/receive_suggestions", function(data){
+    jQuery.get("/followbias/receive_suggestions.json", function(data){
       _.each(data.accounts, function(account){
         container.append(this.recommended_account_template(account));
       }.bind(this));
@@ -81,9 +82,18 @@ var AccountCorrections = Backbone.View.extend({
 		$(".label_row ." + prev_var + " .value").html(parseInt(prev_value)-1);
 
     jQuery.post("/followbias/correct", {id: p.attr("data-id"), gender:el.attr("data-gender"), authenticity_token: AUTH_TOKEN}, function(data){
-
       console.log(data);
     });
+    
+    suggestion_block = el.siblings(".suggestion");
+    if(new_var =="Female"){
+      suggestion_block.removeClass("none");
+    }else{
+      if(suggestion_block.hasClass("selected")){
+        this.toggle_suggest_account({target:suggestion_block});
+      }
+      suggestion_block.addClass("none");
+    }
 
     // now update the glasses
     if(["Male", "Female"].indexOf(new_var) >= 0){
@@ -96,7 +106,11 @@ var AccountCorrections = Backbone.View.extend({
   },
 
   fetch_gender_samples: function(){
-    that = this;
+    var that = this;
+    if(this.gender_samples_fetched){
+      return;
+    }
+
     jQuery.get("/followbias/show_gender_samples/" + followbias_screen_name + ".json", function(data){
         new_div = $("<div id='accounts_page'>");
         _.each(data.friends, function(d){
@@ -104,6 +118,7 @@ var AccountCorrections = Backbone.View.extend({
         });
         $("#accounts_page").replaceWith(new_div);
         $("#accounts_page").children().addClass("samples")
+        that.gender_samples_fetched = false;
     });
   },
 
@@ -156,31 +171,53 @@ var FollowBias = Backbone.View.extend({
     this.followbias_data = null;
     this.canvas = Raphael("background", "100%", "100%");
     this.survey_viewed = false;
-
+  
+    this.first_render_glasses = true;
+    this.first_render_suggestions = true;
+    
     //this.render();
     $(window).bind("resize.app", _.bind(this.render, this));
     $(window).bind("scroll", _.bind(this.scroll, this));
   },
 
-  // TODO: Fix bug that reloads the app every time you resize
-  // the page
   render: function(){
+
+    // we need to deal with three cases:
+    // CASE ONE: It's their first time, and first time through
+    // CASE TWO: It's a repeat user's first time in a while
+    // CASE THREE: It's a first time users's second time through
+    //             without FollowBias data yet
+    // CASE FOUR:  It's a repeat user's first time in a while, 
+    //             with no data back from this time
+    // CASE FIVE:  Someone is around, they've been around a few times
+    //             and they're scrolling
+
+    // if it's the first time we're loading the page
+
     if(this.followbias_data == null){
       this.render_base_circle();
       this.start_spinner();
-      this.fetch_followbias();
-    }else{
+      if(this.first_render_glasses){
+        this.first_render_glasses = false;
+        this.fetch_followbias();
+      }
+    }else{ // if we're redrawing
+      // only render glasses if we're redrawing
+      // and the followbias has already been found
       this.render_glasses();
-      account_corrections.receive_suggestions(); 
+ 
+      if(!account_corrections.corrections_active && this.first_render_suggestions){
+        this.first_render_suggestions = false;
+        account_corrections.fetch_gender_samples();
+        account_corrections.receive_suggestions(); 
+      }
       if(!this.survey_viewed){
         post_survey.start_survey_timer();
         this.survey_viewed = true;
       }
       $("#correction_label").css("top", ($(window).height() - 80) + "px");
-      if(!account_corrections.corrections_active){
-        account_corrections.fetch_gender_samples();
-      }
     }
+    console.log("render complete");
   },
 
   clicked_suggestions_screen_name: function(name){
