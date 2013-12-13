@@ -95,7 +95,7 @@ class FollowbiasController < ApplicationController
     #redirect_to "/" and return if @account.nil?
     
     if ["Female", "Male", "Unknown"].include? params[:gender]
-      @account.account_gender_judgments.create! :user_id=>@current_user.id, :gender=>params[:gender]
+      @account.correct_gender(@current_user, params[:gender])
     end
 
     @current_user.activity_logs.create(:action => "followbias/correct",

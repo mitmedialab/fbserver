@@ -3,12 +3,24 @@ require 'test_helper'
 class AccountTest < ActiveSupport::TestCase
   test "gender" do
    assert_equal "Male", accounts(:two).gender
-   assert_equal "Unknown", accounts(:three).gender
-   accounts(:three).account_gender_judgments.create!({:user_id=>users(:one).id, :gender=>"Male"})
-   assert_equal "Male", accounts(:three).gender
+   account = accounts(:three)
+   assert_equal "Unknown", account.gender
   end
 
-  test "gest suggestion" do
+  test "correct gender" do
+    assert_difference 'AccountGenderJudgment.all.size', 1 do
+      account = accounts(:three)
+      account.correct_gender(users(:one), "Male")
+      account.reload
+      assert_equal "Male",  account.gender
+      agj = account.account_gender_judgments.last
+      assert_equal "Male", agj.gender
+      assert_equal users(:one).id, agj.user.id
+      assert_equal account.id, agj.account.id
+    end 
+  end
+
+  test "get suggestion" do
     assert_equal accounts(:one).account_suggestion, accounts(:one).get_account_suggestion
 
     assert_equal nil, accounts(:five).account_suggestion
