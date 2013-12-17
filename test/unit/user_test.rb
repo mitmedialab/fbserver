@@ -9,19 +9,96 @@ class UserTest < ActiveSupport::TestCase
     assert friends.include? accounts(:one)
   end
 
+  test "friendrecords" do
+    assert_equal 2, users(:three).friendsrecords.size
+    assert_equal 1, users(:three).friendrecords.size
+  end
+
   test "all friends paged" do
     friends = users(:one).all_friends_paged(2, 1)
     assert_equal 2, friends.size
     assert_not_equal accounts(:three).uuid, friends[0].uuid
   end
 
-  test "follow bias" do
+  test "followbias"  do
+    assert_no_difference 'users(:system).followbias_records.size' do
+      assert_equal nil,  users(:system).followbias
+    end
+
+    # setup: cache followbias record
+    user = users(:one)
+    user.cache_followbias_record
+
+    # make sure that followbias doesn't create a new followbias_record
+    # if one already exists
+    assert_no_difference 'user.followbias_records.size' do
+      bias = user.followbias
+      assert_equal 2, bias[:male]
+      assert_equal 1, bias[:female]
+      assert_equal 1, bias[:unknown]
+    end
+
+    #now change the gender of an account and assert the same followbias
+    lois = accounts(:two)
+    lois.correct_gender(user, "Female")
+    assert_no_difference 'user.followbias_records.size' do
+      bias = user.followbias
+      assert_equal 2, bias[:male]
+      assert_equal 1, bias[:female]
+      assert_equal 1, bias[:unknown]
+    end
+
+    #now update the cache and expect the followbias to change
+    user.reload
+    fbr = user.followbias_records.last
+    #updating time so the latest record does get returned as .last
+    fbr.created_at = 1.day.ago 
+    fbr.save!
+   
+    user.cache_followbias_record
+    assert_no_difference 'user.followbias_records.size' do
+      bias = user.followbias
+      assert_equal 1, bias[:male]
+      assert_equal 2, bias[:female]
+      assert_equal 1, bias[:unknown]
+    end
+
+  end
+
+  test "cache followbias record only if the followbias has changed" do
+    user = users(:one)
+    # create first followbias record cache
+    user.cache_followbias_record
+    assert_no_difference 'user.followbias_records.size' do
+      #don't update the followbias record cache if it hasn't changed
+      user.cache_followbias_record
+    end
+
+    #now change the gender of an account. A new cache entry should be created
+    assert_difference 'user.followbias_records.size', 1 do
+      lois = accounts(:two)
+      lois.correct_gender(user, "Female")
+      user.cache_followbias_record
+    end
+  end
+
+  test "follow bias cache" do
     empty = {:male=>0, :female=>0 , :unknown=>0, :total_following=>0, :account=>"nofriends"}
-    assert_equal empty,  users(:four).followbias
-    bias = users(:one).followbias
-    assert_equal 2, bias[:male]
-    assert_equal 1, bias[:female]
-    assert_equal 1, bias[:unknown]
+
+    assert_no_difference 'users(:system).followbias_records.size' do
+      assert_equal nil,  users(:system).cache_followbias_record
+    end
+
+    assert_difference 'users(:four).followbias_records.size', 1 do
+      assert_equal empty,  users(:four).cache_followbias_record
+    end
+
+    assert_difference 'users(:one).followbias_records.size', 1 do
+      bias = users(:one).cache_followbias_record
+      assert_equal 2, bias[:male]
+      assert_equal 1, bias[:female]
+      assert_equal 1, bias[:unknown]
+    end
   end
 
   test "show gender samples" do
