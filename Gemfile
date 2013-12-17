@@ -10,13 +10,16 @@ gem 'rails', '3.2.11'
 gem 'twitter'
 gem 'omniauth-twitter'
 gem 'resque'
-#gem 'resque-lock'
+#gem 'resque-web' , require:'resque_web'
+gem 'resque-lock'
 gem 'resque-lock-timeout'
+gem 'resque-scheduler'
 gem 'yaml_db'
 gem 'mysql', '~>2.8.1'
 gem 'mysql2'
 gem 'sqlite3'
 gem 'newrelic_rpm'
+gem 'therubyracer'
 
 
 # Gems used only for assets and not required

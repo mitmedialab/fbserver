@@ -6,6 +6,70 @@ require 'json'
 require 'mysql2'
 require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
+
+#class TestScheduleTask
+#  @queue = "test_schedule_#{Rails.env}".to_sym
+#
+#  def self.perform arg
+#    puts "#{arg}: #{Time.now}"
+#  end
+#end
+
+# run through and update the followbias cache 
+# no more frequently than every 10 minutes
+class CacheFollowBiasRecords
+  @queue = "followbias_#{Rails.env}".to_sym
+  
+  def self.perform
+    count = 0 
+    User.all.each do |user|
+      if(user.followbias_records.count == 0 or
+         user.followbias_records.order("created_at ASC").last.created_at <= 10.minutes.ago)
+        print "#{user.screen_name} "
+        count += 1
+        user.cache_followbias_record
+      else
+        print "x "
+      end
+    end
+    Rails.logger.info "Attempted to cache followbias for #{count} "
+  end
+end
+
+class UpdateFollowBiasForAllUsers
+  @queue = "followbias_#{Rails.env}".to_sym
+  
+  def self.perform
+    user_counter = 0
+
+    # note that we omit people who have revoked our access
+    users = User.where("twitter_token IS NOT NULL and twitter_secret IS NOT NULL AND failed!=true")
+    whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' or treatment='alpha'")
+
+    whitelist.each do |row|
+      screen_name = row.screen_name
+
+      if(row.twitter_token.nil? or row.twitter_secret.nil?)
+        user_counter = 0 if(user_counter >= users.size)
+        user = users[user_counter]
+        user_counter += 1
+      else
+        user = row
+      end
+
+      authdata = {:consumer_key => ENV["TWITTER_CONSUMER_KEY"],
+                  :consumer_secret => ENV["TWITTER_CONSUMER_SECRET"],
+                  :oauth_token => user.twitter_token,
+                  :oauth_token_secret => user.twitter_secret,
+                  :api_user => user.screen_name,
+                  :followbias_user => screen_name}
+      Resque.enqueue(ProcessUserFriends, authdata)
+    end
+    Rails.logger.info "Queued Twitter updates for #{whitelist.size} accounts"
+    puts "Queued Twitter updates for #{whitelist.size} accounts"
+  end
+end
+
 class DataObject
   attr_reader :system_user
   def initialize()
@@ -95,7 +159,8 @@ class DataObject
 end
 
 class ProcessUserFriends
-  @queue = "fetchfriends#{Rails.env}".to_sym
+  @queue = "followbias_#{Rails.env}".to_sym
+  #@queue = "fetchfriends#{Rails.env}".to_sym
 
   def self.perform(authdata)
     db = DataObject.new

@@ -1,0 +1,13 @@
+cache_followbias_records:
+  every:
+    - "15m"
+    - :first_in: "2m"
+  class: CacheFollowBiasRecords
+  queue: followbias_development
+  description: "run through and update the followbias cache every 15 minutes"
+#  args: cat
+queue_twitter_queries:
+  cron: '0 23 * * *'
+  class: UpdateFollowBiasForAllUsers
+  queue: followbias_development
+  description: "queue a new batch of Twitter queries each day"
