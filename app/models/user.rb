@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
   has_many :friendsrecords
   has_many :account_gender_judgments
   has_many :activity_logs
+  has_many :followbias_records
 
   def self.create_with_omniauth(auth)
     create! do |user|
@@ -14,7 +15,6 @@ class User < ActiveRecord::Base
       user.screen_name = auth["info"]["nickname"]
       user.twitter_token =  auth['credentials']['token']
       user.twitter_secret = auth['credentials']['secret']
-      puts auth['credentials']
     end
   end
 
@@ -43,11 +43,15 @@ class User < ActiveRecord::Base
     return [] if self.suggested_accounts.nil?
     JSON.parse(self.suggested_accounts).collect{|i|i.to_i}
   end
+ 
+  def friendrecords
+    self.friendsrecords.where("incomplete IS FALSE")
+  end
 
   def receive_random_suggestions count
 
     results = []
-    follow_list = JSON.parse(self.friendsrecords.last.friends).collect{|i|i.to_i}
+    follow_list = JSON.parse(self.friendrecords.last.friends).collect{|i|i.to_i}
 
     #fetch a list of all accounts that the user doesn't already follow
     all_suggestions = AccountSuggestion.where("CHAR_LENGTH(suggesters) >2").find_all{|suggestion| !follow_list.include?(suggestion.account.uuid) }
@@ -76,9 +80,19 @@ class User < ActiveRecord::Base
     account.account_suggestion.remove_user self
   end
 
+  #TODO: refactor to allow users to specify a friendsrecord
+  #TODO: refactor to allow users to specify a date
   def all_friends
-    unless self.friendsrecords.last.nil?
-      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends))
+    last = self.friendrecords.last
+    unless last.nil? or last.friends==""
+      #begin
+        Account.where("uuid IN (?)", JSON.parse(last.friends))
+      #rescue Exception => e
+      #  puts e
+        #puts "FRIENDS: #{last.friends}"
+        #exit(1)
+      #  []
+      #end
     else
       []
     end
@@ -99,9 +113,10 @@ class User < ActiveRecord::Base
   end
 
   def all_friends_paged(limit,offset)
-    unless self.friendsrecords.last.nil?
+    last = friendrecords.last
+    unless last.nil?
       #sort by occurrence of ' ' to prioritise likely miscategorised accounts
-      Account.where("uuid IN (?)", JSON.parse(self.friendsrecords.last.friends)).order("INSTR(name,' ') ASC").limit(limit).offset(offset)
+      Account.where("uuid IN (?)", JSON.parse(last.friends)).order("INSTR(name,' ') ASC").limit(limit).offset(offset)
 
       # when sorting, prioritize items for which there is no custom gender
       # BAD IDEA, since it causes gaps in the paging
@@ -116,7 +131,7 @@ class User < ActiveRecord::Base
     # get the report from that time
     # if you want to calibrate it to specific friendrecords
     # run this repeatedly for the dates of those friendrecords
-    friendrecord = self.friendsrecords.where("created_at <= '#{datetime.to_s(:db)}'").order("created_at ASC").last
+    friendrecord = self.friendsrecords.where("created_at <= '#{datetime.to_s(:db)}' AND incomplete IS FALSE").order("created_at ASC").last
     return [] if friendrecord.nil?
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
     accounts = Account.where("uuid IN (?)", JSON.parse(friendrecord.friends))
@@ -134,7 +149,30 @@ class User < ActiveRecord::Base
   end
 
   def followbias
-    return nil if self.friendsrecords.order("created_at ASC").last.nil? or self.friendsrecords.order("created_at ASC").last.friends == ""
+    # note: this will always query the last followbias_record
+    # even if there is a more recent friendsrecord that doesn't
+    # yet have a corresponding followbias_record
+    followbias_record = self.followbias_records.order("created_at ASC").last
+
+    if(followbias_record)
+
+      #self.followbias_records.order("created_at ASC").each do |fr|
+      #  puts fr.to_json
+      #end
+
+      { :male => followbias_record.male,
+        :female => followbias_record.female,
+        :unknown => followbias_record.unknown,
+        :total_following => followbias_record.total_following,
+        :account => self.screen_name }
+    else
+      self.cache_followbias_record
+    end
+  end
+
+  # TODO: CREATE NEW METHOD TO CACHE FOR A SPECIFIC FRIENDSRECORD
+  def cache_followbias_record
+    return nil if self.friendrecords.last.nil? or self.friendsrecords.where("incomplete IS FALSE").order("created_at ASC").last.friends == ""
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
     self.all_friends.each do |account|
       gender = account.gender
@@ -143,6 +181,21 @@ class User < ActiveRecord::Base
       score[:total_following] += 1
     end
     score[:unknown] = score[:total_following] - score[:male] - score[:female]
+
+    # determine if you should cache this
+    fbr = self.followbias_records.last
+    save_cache = false
+    save_cache = true if(fbr.nil? or 
+          ( fbr.male != score[:male] or
+            fbr.female != score[:female] or
+            fbr.unknown != score[:unknown] or
+            fbr.total_following != score[:total_following]))
+ 
+    if(save_cache)
+      self.followbias_records.create(score.merge({
+        :friendsrecord_id => self.friendrecords.last.id}))
+    end
+
     score[:account] = self.screen_name
     score
   end
