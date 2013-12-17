@@ -1,9 +1,16 @@
 # to use the gemset
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 rvm use ruby-1.9.3-p385@followbias-dev 
-#to start the Resque worker
+
+# to start a Resque worker
 export RESQUE_WORKER=true
-TERM_CHILD=1 QUEUE=fetchfriendsproduction rake resque:work
+TERM_CHILD=1 QUEUE=followbias_production rake resque:work
+
+# to launch the Resque Scheduler
+bundle exec rake resque:scheduler 
+
+# TODO: make sure to edit the resque scheduler 
+# for the production environment before going live
 
 #load resque-web
 load: hypatia.media.mit.edu:5678
