@@ -109,7 +109,7 @@ class DataObject
   def update_accounts accounts
     query = ""
     accounts.each do |account|
-      query ="UPDATE accounts SET profile_image_url='#{account.profile_image_url}', screen_name='account.screen_name', profile_image_updated_at= NOW(), updated_at = NOW() WHERE uuid = '#{account.id}'; "
+      query ="UPDATE accounts SET profile_image_url='#{@db.escape(account.profile_image_url)}', screen_name='#{@db.escape(account.screen_name)}', profile_image_updated_at= NOW(), updated_at = NOW() WHERE uuid = '#{account.id}'; "
       print "."
       @db.query(query)
     end
@@ -196,6 +196,14 @@ module CatchTwitterRateLimit
       begin
         num_attempts += 1
         yield
+      rescue Twitter::Error::InternalServerError => error
+        puts error
+        return [] if(num_attempts >= 2)
+        retry
+      rescue Twitter::Error::ClientError => error
+        puts error
+        return [] if(num_attempts >= 2)
+        retry
       rescue Twitter::Error::TooManyRequests => error
         puts "RATE LIMITED"
         if num_attempts % 3 == 0
