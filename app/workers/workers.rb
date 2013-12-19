@@ -96,7 +96,7 @@ class DataObject
 
   def fetch_100_stale_profile_image_accounts_and_flag
     uuids = @db.query("SELECT uuid from accounts WHERE profile_image_updated_at IS NULL or profile_image_updated_at < NOW() - INTERVAL 1 WEEK LIMIT 100").each(:as=> :array).collect{|i|i[0]}
-    query = "UPDATE accounts SET profile_image_updated = NOW() WHERE "
+    query = "UPDATE accounts SET profile_image_updated_at = NOW() WHERE "
     uuids.each do |uuid|
       query += "uuid='#{uuid}' or "
     end
@@ -107,10 +107,12 @@ class DataObject
 
   def update_accounts accounts
     query = ""
-    account.each do |account|
-      query +="UPDATE accounts SET profile_image_url='#{account.profile_image_url}', profile_image_updated_at= NOW(), updated_at = NOW() WHERE uuid = '#{account.id}'; "
+    accounts.each do |account|
+      query ="UPDATE accounts SET profile_image_url='#{account.profile_image_url}', screen_name='account.screen_name', profile_image_updated_at= NOW(), updated_at = NOW() WHERE uuid = '#{account.id}'; "
+      print " #{account.id},"
+      @db.query(query)
     end
-    @db.query(query)
+    #puts query
   end
 
   def create_user t
@@ -183,39 +185,47 @@ class DataObject
 end
 
 module CatchTwitterRateLimit
-  def self.catch_rate_limit(authdata, db)
-    num_attempts = 0
-    begin
-      num_attempts += 1
-      yield
-    rescue Twitter::Error::TooManyRequests => error
-      puts "RATE LIMITED"
-      if num_attempts % 3 == 0
-        sleep(error.rate_limit.reset_in)
+  def self.included base
+    base.extend CatchRateLimit
+  end
+
+  module CatchRateLimit
+    def catch_rate_limit(authdata, db)
+      num_attempts = 0
+      begin
+        num_attempts += 1
+        yield
+      rescue Twitter::Error::TooManyRequests => error
+        puts "RATE LIMITED"
+        if num_attempts % 3 == 0
+          sleep(error.rate_limit.reset_in)
+          retry
+        else
+          retry
+        end
+      rescue Twitter::Error::NotFound => error
+        puts "Twitter::Error:NotFound -- retrying"
+        puts error
+        #return nil after second attempt
+        return [] if(num_attempts >= 2)
+        sleep(8)
         retry
-      else
+      rescue Twitter::Error::Forbidden => error
+        db.block_api_user(authdata)
+        return []
+      rescue Twitter::Error::Unauthorized => error
+        return []
+      rescue Twitter::Error::ServiceUnavailable => error
+        puts "Twitter::Error:ServiceUnavailable -- retrying"
+        puts error
+        sleep(8)
+        retry
+      rescue Twitter::Error::BadGateway => error
+        puts "Twitter::Error:BadGateway -- retrying"
+        puts error
+        sleep(8)
         retry
       end
-    rescue Twitter::Error::NotFound => error
-      puts "Twitter::Error:NotFound -- retrying"
-      puts error
-      #return nil after second attempt
-      return [] if(num_attempts >= 2)
-      sleep(8)
-      retry
-    rescue Twitter::Error::Forbidden => error
-      db.block_api_user(authdata)
-      return []
-    rescue Twitter::Error::ServiceUnavailable => error
-      puts "Twitter::Error:ServiceUnavailable -- retrying"
-      puts error
-      sleep(8)
-      retry
-    rescue Twitter::Error::BadGateway => error
-      puts "Twitter::Error:BadGateway -- retrying"
-      puts error
-      sleep(8)
-      retry
     end
   end
 end
@@ -225,7 +235,8 @@ class FindExpiredTwitterIcons
   @queue = "followbias_test_#{Rails.env}".to_sym
   def self.perform
     db = DataObject.new
-    while(db.count_stale_profile_image_accounts > 0)
+    puts "updating accounts"
+    while(db.count_stale_profile_image_accounts.count > 0)
  
       # connect to Twitter using a random user
       # TODO: at some time, archive the rate limits
@@ -244,7 +255,12 @@ class FindExpiredTwitterIcons
       users = self.catch_rate_limit(authdata, db){
        client.users(uuids)
       }
-      @db.update_accounts(users)
+      if(users.size>0)
+        db.update_accounts(users)
+        print "."
+      else
+        print "x"
+      end
     end
   end
 end
