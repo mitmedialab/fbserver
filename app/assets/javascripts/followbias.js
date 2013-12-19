@@ -11,10 +11,28 @@ _.templateSettings = {
 
 var AccountSuggestions = Backbone.View.extend({
   el:"#makechange",
-  events:{},
+  events:{
+    "click #reload_suggestions":"reload_suggestions"
+  },
   initialize: function(){
+    this.recommended_account_template = _.template($("#recommended_account_template").html());
+  },
 
-  }
+  reload_suggestions: function(){
+    // only log when they click to reload
+    follow_bias.activity_log("reloaded_suggestions","");
+    this.receive_suggestions();
+  },
+  receive_suggestions: function(){
+    var container = $("#recommendation_container");
+    jQuery.get("/followbias/receive_suggestions.json", function(data){
+      new_html = ""
+      _.each(data.accounts, function(account){
+        new_html += (this.recommended_account_template(account));
+      }.bind(this));
+      container.html(new_html);
+    }.bind(this));
+  },
 });
 
 
@@ -31,23 +49,11 @@ var AccountCorrections = Backbone.View.extend({
     this.label_template = _.template("({{=page}}/{{=pages}})")
     this.corrections_paragraph = _.template($("#corrections_paragraph").html())
     this.corrections_progress_label = _.template($("#corrections_progress_label").html());
-    this.recommended_account_template = _.template($("#recommended_account_template").html());
     this.corrections_active = false;
     this.fetching_corrections = false;
     this.gender_samples_fetched = false;
     $(".prev-page").hide();
   },
-
-
-  receive_suggestions: function(){
-    var container = $("#recommendation_container");
-    container.html('');
-    jQuery.get("/followbias/receive_suggestions.json", function(data){
-      _.each(data.accounts, function(account){
-        container.append(this.recommended_account_template(account));
-      }.bind(this));
-    }.bind(this));
-  }, 
 
 
   next_page: function(){
@@ -220,7 +226,7 @@ var FollowBias = Backbone.View.extend({
       if(!account_corrections.corrections_active && this.first_render_suggestions){
         this.first_render_suggestions = false;
         account_corrections.fetch_gender_samples();
-        account_corrections.receive_suggestions(); 
+        account_suggestions.receive_suggestions(); 
       }
       if(!this.survey_viewed){
         post_survey.start_survey_timer();
@@ -237,6 +243,10 @@ var FollowBias = Backbone.View.extend({
 
   clicked_corrections_screen_name: function(name){
     this.activity_log("clicked_corrections_screen_name", name); 
+  },
+
+  clicked_to_trim_follows: function(){
+    this.activity_log("clicked_to_trim_follows", "");
   },
 
   activity_log: function(action, data){
@@ -551,8 +561,8 @@ var FBRouter = Backbone.Router.extend({
 });
 
 router = new FBRouter();
-account_corrections = new AccountCorrections();
 account_suggestions = new AccountSuggestions();
+account_corrections = new AccountCorrections();
 follow_bias = new FollowBias();
 post_survey = new PostSurvey();
 shh_view = new ShhView();
