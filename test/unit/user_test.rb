@@ -20,6 +20,13 @@ class UserTest < ActiveSupport::TestCase
     assert_not_equal accounts(:three).uuid, friends[0].uuid
   end
 
+  test "all friends paged, gender sorted" do
+    friends = users(:one).all_friends_paged(2,0,"suggest")
+    assert_not_equal nil, friends
+    friends.each{|i|puts i.screen_name}
+    assert_equal accounts(:five).uuid, friends[0].uuid
+  end
+
   test "followbias"  do
     assert_no_difference 'users(:system).followbias_records.size' do
       assert_equal nil,  users(:system).followbias

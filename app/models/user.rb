@@ -112,11 +112,15 @@ class User < ActiveRecord::Base
     friends
   end
 
-  def all_friends_paged(limit,offset)
+  def all_friends_paged(limit,offset, sort="correct")
     last = friendrecords.last
     unless last.nil?
-      #sort by occurrence of ' ' to prioritise likely miscategorised accounts
-      Account.where("uuid IN (?)", JSON.parse(last.friends)).order("INSTR(name,' ') ASC").limit(limit).offset(offset)
+      if(sort =="suggest")
+        Account.find_by_sql(["select * from accounts WHERE UUID IN (?) ORDER BY gender ASC LIMIT #{offset.to_i},#{limit.to_i}", JSON.parse(last.friends)])
+      else
+        #sort by occurrence of ' ' to prioritise likely miscategorised accounts
+        Account.where("uuid IN (?)", JSON.parse(last.friends)).order("INSTR(name,' ') ASC").limit(limit).offset(offset)
+      end
 
       # when sorting, prioritize items for which there is no custom gender
       # BAD IDEA, since it causes gaps in the paging
