@@ -63,6 +63,7 @@ class FollowbiasControllerTest < ActionController::TestCase
     get :show_gender_samples, :format=>'json',:id => users(:three).screen_name
     assert_response :success
     json_data = JSON.load(response.body)
+    assert json_data["friends"][0].has_key? "selected"
     assert_equal 6, json_data["friends"].size
     
   end

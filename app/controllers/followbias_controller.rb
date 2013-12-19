@@ -116,9 +116,24 @@ class FollowbiasController < ApplicationController
     @user = User.find_by_screen_name(params[:id])
     redirect_to "/" and return if @user.nil?
     redirect_to "/" and return if @current_user.nil? or @current_user != @user
+
+    # TODO: REFACTOR THIS CODE SNIPPET
+    @friends = @user.sample_friends.shuffle.collect{|friend|
+      status = ""
+      status = "selected" if @user.suggests_account? friend
+      {:gender => friend.gender,
+       :id => friend.id,
+       :uuid => friend.uuid,
+       :name => friend.name,
+       :profile_image_url => friend.profile_image_url,
+       :screen_name => friend.screen_name,
+       :selected => status}
+    }
+
+
     respond_to do |format|
       format.json{
-        render :json => {:friends=>@user.sample_friends.shuffle}
+        render :json => {:friends=>@friends}
       }
     end
   end
