@@ -4,6 +4,7 @@ require 'resque'
 require 'twitter'
 require 'json'
 require 'mysql2'
+require 'curb'
 require File.join(File.dirname(__FILE__), '../models/name_gender.rb')
 
 
@@ -89,6 +90,29 @@ class DataObject
     @db.query("UPDATE users set failed=1 WHERE screen_name = #{a.followbias_user}")
   end
 
+  def count_stale_profile_image_accounts
+    @db.query("SELECT COUNT(*) from accounts WHERE profile_image_updated_at IS NULL or profile_image_updated_at < NOW() - INTERVAL 1 WEEK")
+  end
+
+  def fetch_100_stale_profile_image_accounts_and_flag
+    uuids = @db.query("SELECT uuid from accounts WHERE profile_image_updated_at IS NULL or profile_image_updated_at < NOW() - INTERVAL 1 WEEK LIMIT 100").each(:as=> :array).collect{|i|i[0]}
+    query = "UPDATE accounts SET profile_image_updated = NOW() WHERE "
+    uuids.each do |uuid|
+      query += "uuid='#{uuid}' or "
+    end
+    query = query[0,query.size - 3] + ";"
+    @db.query(query)
+    uuids
+  end
+
+  def update_accounts accounts
+    query = ""
+    account.each do |account|
+      query +="UPDATE accounts SET profile_image_url='#{account.profile_image_url}', profile_image_updated_at= NOW(), updated_at = NOW() WHERE uuid = '#{account.id}'; "
+    end
+    @db.query(query)
+  end
+
   def create_user t
     @db.query("INSERT into users(screen_name, name, uid, created_at, updated_at, provider) VALUES('#{t.screen_name}', \"#{t.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\",'#{t.id}','#{Time.now.to_s}', '#{Time.now.to_s}', 'twitter');")
   end
@@ -121,7 +145,7 @@ class DataObject
       if(@db.query("select 1 from accounts where screen_name='#{account.screen_name}'").size == 0)
         #@db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
         gender = @name_gender.process(account.name)[:result]
-        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{gender}')"
+        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender, profile_image_updated_at) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{gender}', NOW()}')"
         @db.query(query)
 
         #puts "CREATING AUTO RECORD"
@@ -158,7 +182,75 @@ class DataObject
 
 end
 
+module CatchTwitterRateLimit
+  def self.catch_rate_limit(authdata, db)
+    num_attempts = 0
+    begin
+      num_attempts += 1
+      yield
+    rescue Twitter::Error::TooManyRequests => error
+      puts "RATE LIMITED"
+      if num_attempts % 3 == 0
+        sleep(error.rate_limit.reset_in)
+        retry
+      else
+        retry
+      end
+    rescue Twitter::Error::NotFound => error
+      puts "Twitter::Error:NotFound -- retrying"
+      puts error
+      #return nil after second attempt
+      return [] if(num_attempts >= 2)
+      sleep(8)
+      retry
+    rescue Twitter::Error::Forbidden => error
+      db.block_api_user(authdata)
+      return []
+    rescue Twitter::Error::ServiceUnavailable => error
+      puts "Twitter::Error:ServiceUnavailable -- retrying"
+      puts error
+      sleep(8)
+      retry
+    rescue Twitter::Error::BadGateway => error
+      puts "Twitter::Error:BadGateway -- retrying"
+      puts error
+      sleep(8)
+      retry
+    end
+  end
+end
+
+class FindExpiredTwitterIcons
+  include CatchTwitterRateLimit
+  @queue = "followbias_test_#{Rails.env}".to_sym
+  def self.perform
+    db = DataObject.new
+    while(db.count_stale_profile_image_accounts > 0)
+ 
+      # connect to Twitter using a random user
+      # TODO: at some time, archive the rate limits
+      # and intelligently allocate API users
+      current_user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").first
+      authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
+                  :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
+                  :oauth_token => current_user['twitter_token'],
+                  :oauth_token_secret => current_user['twitter_secret']}
+      client = self.catch_rate_limit(authdata, db){
+        Twitter::Client.new(authdata)
+      }
+      
+      #fetch 100 UUIDs of possibly stale profile images from the accounts table
+      uuids = db.fetch_100_stale_profile_image_accounts_and_flag
+      users = self.catch_rate_limit(authdata, db){
+       client.users(uuids)
+      }
+      @db.update_accounts(users)
+    end
+  end
+end
+
 class ProcessUserFriends
+  include CatchTwitterRateLimit
   @queue = "followbias_#{Rails.env}".to_sym
   #@queue = "fetchfriends#{Rails.env}".to_sym
 
@@ -242,42 +334,6 @@ class ProcessUserFriends
    ### ==>
    db.save_friends(followbias_user.attrs[:id], all_follow_data, follows)
    puts "FRIENDS SAVED"
-  end
-
-  def self.catch_rate_limit(authdata, db)
-    num_attempts = 0
-    begin
-      num_attempts += 1
-      yield
-    rescue Twitter::Error::TooManyRequests => error
-      puts "RATE LIMITED"
-      if num_attempts % 3 == 0
-        sleep(error.rate_limit.reset_in)
-        retry
-      else
-        retry
-      end
-    rescue Twitter::Error::NotFound => error
-      puts "Twitter::Error:NotFound -- retrying"
-      puts error
-      #return nil after second attempt
-      return [] if(num_attempts >= 2)
-      sleep(8)
-      retry
-    rescue Twitter::Error::Forbidden => error
-      db.block_api_user(authdata)
-      return []
-    rescue Twitter::Error::ServiceUnavailable => error
-      puts "Twitter::Error:ServiceUnavailable -- retrying"
-      puts error
-      sleep(8)
-      retry
-    rescue Twitter::Error::BadGateway => error
-      puts "Twitter::Error:BadGateway -- retrying"
-      puts error
-      sleep(8)
-      retry
-    end
   end
 
 end
