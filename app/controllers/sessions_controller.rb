@@ -18,8 +18,9 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    @current_user.activity_logs.create(:action=>"signout")
     session[:user_id] = nil
-    user.activity_logs.create(:action=>"signout")
     redirect_to root_url, :notice => "Signed out!"
   end
 end
