@@ -8,6 +8,16 @@ _.templateSettings = {
     evaluate: /\{\{(.+?)\}\}/g
 };
 
+
+var AccountSuggestions = Backbone.View.extend({
+  el:"#makechange",
+  events:{},
+  initialize: function(){
+
+  }
+});
+
+
 var AccountCorrections = Backbone.View.extend({
   el:"#help",
   events:{
@@ -124,7 +134,7 @@ var AccountCorrections = Backbone.View.extend({
 
   start_corrections: function(page){
     this.corrections_active = true;
-    $("#start_corrections").remove();
+    //$("#start_corrections").remove();
     //$("#help").find("p").remove();
     //$("#scroll_improve").after(that.corrections_paragraph());
     this.fetch_corrections_page(0);
@@ -169,6 +179,7 @@ var FollowBias = Backbone.View.extend({
     this.render_count = 0;
     this.topbar_down = false
     this.followbias_data = null;
+    this.change_suggestion = null;
     this.canvas = Raphael("background", "100%", "100%");
     this.survey_viewed = false;
   
@@ -229,7 +240,7 @@ var FollowBias = Backbone.View.extend({
   },
 
   activity_log: function(action, data){
-    jQuery.post("/activity/log", {action:action, data:data,  authenticity_token: AUTH_TOKEN}, function(data){
+    jQuery.post("/activity/log", {log_action:action, data:data,  authenticity_token: AUTH_TOKEN}, function(data){
       console.log(data);
     });
 
@@ -248,6 +259,14 @@ var FollowBias = Backbone.View.extend({
       window.setTimeout(function(){follow_bias.fetch_followbias()}, 15000)
     });
 
+  },
+
+  // Thanks to Pragun Goyal for writing this equation
+  // when I was too tired to think about maths
+  calculate_female_change: function(percent_increase){
+    pct = parseFloat(percent_increase)
+    pw = parseFloat(this.followbias_data.female) / parseFloat(this.followbias_data.total_following)*100.0;
+    return parseInt( ( (pw+pct)*(this.followbias_data.male + this.followbias_data.unknown) + (pw+pct - 100)* this.followbias_data.female) / (100-(pw+pct)) );
   },
 
   generate_dimensions: function(){
@@ -322,6 +341,13 @@ var FollowBias = Backbone.View.extend({
 
   render_glasses: function(){
     if(this.render_count >=3){this.render_count=0;}
+
+    change_suggestion = this.calculate_female_change(5);
+    if(this.change_suggestion == null){
+      this.activity_log("change suggestion", change_suggestion);
+    }
+    this.change_suggestion = change_suggestion;
+    $("#follow_more_women").html(this.change_suggestion);
   
     men_percent = parseFloat(this.followbias_data.male) / parseFloat(this.followbias_data.total_following);
     women_percent = parseFloat(this.followbias_data.female) / parseFloat(this.followbias_data.total_following);
@@ -526,6 +552,7 @@ var FBRouter = Backbone.Router.extend({
 
 router = new FBRouter();
 account_corrections = new AccountCorrections();
+account_suggestions = new AccountSuggestions();
 follow_bias = new FollowBias();
 post_survey = new PostSurvey();
 shh_view = new ShhView();

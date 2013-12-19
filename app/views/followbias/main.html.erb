@@ -2,7 +2,7 @@
       <span class="baritem" style="background:rgb(105,127,158);color:rgb(150,165,187);"><a href="#tops">FOLLOW BIAS</a></span>
       <div id="correction_label"></div>
       <span class="baritem" style="background:rgb(211,113,136);left:50%;"><div class="nav_group" align="right">
-				<a href="#tops">Home</a><a href="#results">Why</a><a href="#about">About</a><a href="#improve">Data</a><%= link_to "Logout", signout_path %>
+				<a href="#tops">Home</a><a href="#results">Why</a><a href="#about">About</a><a href="#change">Change</a><a href="#improve">Data</a><%= link_to "Logout", signout_path %>
       </div></span>
       <a class="brand">
         <span class="men" id="topbar_men"></span>
@@ -14,7 +14,8 @@
 <div id="corner_nav" class="appearonload">
   <a href="#results">Why</a>
   <a href="#about">About</a>
-  <a href="#improve">Improve Your Data</a>
+  <a href="#change">Make A Change</a>
+  <a href="#improve">Improve Data &amp; Make Suggestions</a>
   <%= link_to "Logout", signout_path %>
 
 </div>
@@ -60,6 +61,8 @@
       <p>Taking control of our filters starts with awareness. FollowBias calculates the gender diversity of who you choose to follow. It accesses the public list of accounts you follow and estimates gender based on first name. You can return anytime to see how your FollowBias has changed; our server updates every six hours.</p>
       <p>FollowBias only collects public information that you reveal on your public Twitter profile. You can close your account anytime by following these <a href="https://support.twitter.com/articles/76052-connecting-or-revoking-third-party-applications">instructions on revoking third party access</a>. If you have any further questions about our use of public data, please <a href="#about">contact us</a>.</p>
     </div>
+  </div>
+  <div class="row">
     <div class="section"> 
       <h2>Why FollowBias?</h2>
        <hr/>
@@ -68,12 +71,12 @@
        <p>Future versions of FollowBias will offer more metrics, recommendations, and the chance to compare yourself to peers. With your feedback and help, we can build a tool that supports diversity based on what works. Thanks for participating! <a href="https://github.com/c4fcm/fbserver/issues/new">Please add bug reports to Github</a>.</p>
        </p>
     </div>
-  
   </div>
 
   <div class="row" id="about_followbias">
     <div class="section">
  		  <h2 id="scroll_about">About FollowBias</h2>
+      <hr/>
       <p><a href="https://twitter.com/natematias">J. Nathan Matias</a> and <a href="https://twitter.com/dearsarah">Sarah Szalavitz</a> met at the MIT Media Lab in 2012 and discovered they shared some of the same crazy dreams about <a href="http://civic.mit.edu/blog/natematias/women-news-and-the-internet-almost-everything-we-know">measuring and changing</a> <a href="http://www.wired.co.uk/magazine/archive/2012/04/ideas-bank/sarah-szalavitz">gender diversity</a> in the media. A few months later, we managed to convince <a href="https://twitter.com/jameshome">James Home</a> to contribute to the project, who has made the project even more spectacular.</p>
       <p>J. Nathan Matias is a grad student at the MIT Media Lab Center for Civic Media, advised by <a href="https://twitter.com/ethanz">Ethan Zuckerman</a>. Nathan collaborates on technology and communities which empower people to become <a href="http://hypatia.media.mit.edu:3000/">more creative, effective, and informed</a>.</p>
       <p>Sarah Szalavitz is the CEO of 7Robot, a social design firm.  She also serves as a fellow at the MIT Media Lab, where she teaches <a href="http://web.media.mit.edu/~asetapen/MAS964/">Social Design</a>. Sarah is fascinated by the impossible, eager for more data, convinced by behavioral economics, and hopes to help people ask better questions.</p>
@@ -82,18 +85,21 @@
       <hr/>
     </div>
   </div>
+  <div class="row" id="makechange">
+    <div class="section">
+			<h2 id="scroll_change">Make A Change</h2>
+      <hr/>
+       <p>To make a <strong>5% change</strong> in the percentage of women you follow, you would have to <strong>follow <span id="follow_more_women"> </span> more women</strong>. Not sure who to follow? These accounts have been suggested by other FollowBias users:</p>
+       <div align="center" id="recommendation_container"></div>
+    </div>
+  </div>
 
   <div class="row" id="help">
     <div class="section">
-			<h2 id="scroll_improve">Improve Your Data</h2>
-
-       <!-- current placeholder for the recommendations system -->
-       <p>Change who you follow:</p>
-       <div align="center" id="recommendation_container"></div>
-       <!-- end recommendations system -->
-
+			<h2 id="scroll_improve">Improve Your Data &amp; Make Suggestions</h2>
       <hr/>
-      <p>Improve the accuracy of your FollowBias by correcting the gender of the accounts you follow. Your corrections will improve all FollowBias data!</p>
+
+      <p>Improve the accuracy of your FollowBias and suggest women for other FollowBias users to follow. Corrections and suggestions will improve FollowBias for all users.</p>
       <p><strong>Please be sensitive to people's privacy</strong> by only revealing information that's already public. <strong>If the person you follow doesn't identify as male or female</strong> please do not reveal their gender. For those who prefer not to divulge or identify otherwise, please label those accounts as "brands, bots, &amp; more."</p>
       <p>Gender is more complex than male and female, although the birth data behind our algorithm only recognizes those categories. Balancing privacy with the nuances of identity is challenging; we encourage your feedback and recommendations.</p>
       <p>Here are examples of our gender estimations. Click "start corrections" to review everyone you follow. If the wrong category is highlighted, click the correct one to change it.</p>
@@ -141,7 +147,7 @@
 	<div class="correct_account" data-id="{{=account.uuid}}">
     <a href="https://twitter.com/intent/user?user_id={{=account.uuid}}" onclick="follow_bias.clicked_corrections_screen_name('{{=account.screen_name}}');"><img src="{{=account.profile_image_url}}" width="48" height="48"/></a>
 		<span class="account">
-			<span class="name">{{=account.name}}</span>
+			<a class="name" href="https://twitter.com/intent/user?user_id={{=account.uuid}}" onclick="follow_bias.clicked_corrections_screen_name('{{=account.screen_name}}');">{{=account.name}}</a>
 			<a class="screen_name" href="https://twitter.com/intent/user?user_id={{=account.uuid}}" onclick="follow_bias.clicked_corrections_screen_name('{{=account.screen_name}}');">@{{=account.screen_name}}</a>
 		</span>
 		<span class="corrections">
@@ -161,9 +167,11 @@
 <script id="recommended_account_template" type="text/template">
   <div class="correct_account recommendation">
     <a href="https://twitter.com/intent/user?user_id={{=uuid}}" onclick="follow_bias.clicked_suggestions_screen_name('{{=screen_name}}');"><img src="{{=profile_image_url}}" width="48" height="48"/></a>
-    <span class="account">
-      <span class="name">{{=name}}</span>
-      <a class="screen_name" href="https://twitter.com/intent/user?user_id={{=uuid}}"onclick="follow_bias.clicked_suggestions_screen_name('{{=screen_name}}');">@{{=screen_name}}</a>
+
+     <span class="account">
+        <a class="name" href="https://twitter.com/intent/user?user_id={{=uuid}}" onclick="follow_bias.clicked_suggestions_screen_name('{{=screen_name}}');">{{=name}}</a>
+        <a class="screen_name" href="https://twitter.com/intent/user?user_id={{=uuid}}" onclick="follow_bias.clicked_suggestions_screen_name('{{=screen_name}}');">@{{=screen_name}}</a>
+
     </span>
   </div>
 </script>

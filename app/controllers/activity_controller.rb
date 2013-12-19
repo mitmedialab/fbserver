@@ -6,7 +6,7 @@ class ActivityController < ApplicationController
     end
     redirect_to "/" and return if @current_user.nil?
 
-    @current_user.activity_logs.create(:action=>params[:action], :data=> data)
+    @current_user.activity_logs.create(:action=>params[:log_action], :data=> data)
     render :json => true
   end
 end
