@@ -40,6 +40,21 @@ class FollowbiasControllerTest < ActionController::TestCase
     
   end
 
+  ## TODO: show_gender_sorted_page should be refactored with show_page
+  test 'show gender sorted corrections page' do
+    get :show_gender_sorted_page, :id=>users(:one).screen_name, :page=>0
+    assert_redirected_to "/"
+    session[:user_id ] = users(:one).id
+
+    assert_difference 'ActivityLog.all.size', 1 do
+      get :show_gender_sorted_page, :format=>'json', :id=>users(:one).screen_name, :page=>0
+      assert_equal 4, assigns(:friends).size
+      json_data = JSON.load(response.body)
+      assert_equal accounts(:five).id, json_data["friends"][0]["id"]
+      assert_equal 1, json_data["next_page"]
+    end
+  end
+
   test "show sample friends" do
     get :show_page, :id=>users(:one).screen_name, :page=>0
     assert_redirected_to "/"

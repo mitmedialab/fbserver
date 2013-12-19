@@ -41,6 +41,7 @@ var AccountCorrections = Backbone.View.extend({
   events:{
     "click .correction" : "correct_account",
     "click #start_corrections":"start_corrections",
+    "click #start_suggestions":"start_suggestions",
     "click .suggestion" : "toggle_suggest_account"
   },
   
@@ -52,6 +53,7 @@ var AccountCorrections = Backbone.View.extend({
     this.corrections_active = false;
     this.fetching_corrections = false;
     this.gender_samples_fetched = false;
+    this.corrections_action="";
     $(".prev-page").hide();
   },
 
@@ -60,7 +62,7 @@ var AccountCorrections = Backbone.View.extend({
     //$(".prev-page").show();
     if(this.fetching_corrections == false){
       this.fetching_corrections = true;
-      this.fetch_corrections_page(this.current_page+1);
+      this.fetch_corrections_page(this.current_page+1, this.corrections_action);
     }
   },
 
@@ -140,16 +142,20 @@ var AccountCorrections = Backbone.View.extend({
 
   start_corrections: function(page){
     this.corrections_active = true;
-    //$("#start_corrections").remove();
-    //$("#help").find("p").remove();
-    //$("#scroll_improve").after(that.corrections_paragraph());
-    this.fetch_corrections_page(0);
+    this.corrections_action = "show_page";
+    this.fetch_corrections_page(0, "show_page");
   },
 
-  fetch_corrections_page: function(page){
+  start_suggestions: function(page){
+    this.corrections_active = true;
+    this.corrections_action = "show_gender_sorted_page";
+    this.fetch_corrections_page(0, "show_gender_sorted_page");
+  },
+
+  fetch_corrections_page: function(page, action){
     that = this;
     this.current_page = page; // could cause trouble. Should really be inside the jQuery
-    jQuery.get("/followbias/show_page/" + followbias_screen_name + ".json?page=" + page, function(data){
+    jQuery.get("/followbias/" + action + "/" + followbias_screen_name + ".json?page=" + page, function(data){
       if(data!=null){
         that.pages = data;
         if(_.size(that.pages.friends) > 0){
@@ -158,7 +164,11 @@ var AccountCorrections = Backbone.View.extend({
             new_div.append(that.correct_account_template({account:d}));
           });
           $(".samples").remove();
-          $("#accounts_page").append(new_div.children());
+          if(page==0){
+            $("#accounts_page").html(new_div.children());
+          }else{
+            $("#accounts_page").append(new_div.children());
+          }
           account_corrections.fetching_corrections = false;
           visible_accounts = data.page_size * (that.current_page) + _.size(that.pages.friends);
           $("#correction_label").html(that.corrections_progress_label({visible: visible_accounts, total_following:follow_bias.followbias_data.total_following}));

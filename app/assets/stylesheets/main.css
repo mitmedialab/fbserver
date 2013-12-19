@@ -466,7 +466,7 @@ a.btn{
   border-right-color:#aaa;
 }
 
-#start_corrections{
+#start_corrections,#start_suggestions{
   margin-top:20px;
   margin-bottom:20px;
   font-weight:bold;

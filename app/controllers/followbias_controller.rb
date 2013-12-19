@@ -36,6 +36,44 @@ class FollowbiasController < ApplicationController
     end
   end
 
+
+  #TODO: at some point, refactor with show_page
+  def show_gender_sorted_page
+    page_size = 25
+
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+    @user = User.find_by_screen_name(params[:id])
+    redirect_to "/" and return if @user.nil? or params[:page].nil?
+    redirect_to "/" and return if @current_user.nil? or @current_user != @user
+
+    @friends = @user.all_friends_paged(page_size, page_size * params[:page].to_i, "suggest").collect{|friend|
+      status = ""
+      status = "selected" if @user.suggests_account? friend
+      {:gender => friend.gender,
+       :id => friend.id,
+       :uuid => friend.uuid,
+       :name => friend.name,
+       :profile_image_url => friend.profile_image_url,
+       :screen_name => friend.screen_name,
+       :selected => status}
+    }
+
+    next_page = params[:page].to_i + 1
+    next_page = nil if @friends.size == 0
+
+    @current_user.activity_logs.create(:action => "followbias/show_gender_sorted_page",
+      :data => {:page=>params[:page]}.to_json)
+
+    respond_to do |format|
+      format.html{
+        render :layout=> false
+      }
+      format.json{
+        render :json => {:friends=>@friends, :next_page=>next_page, :page_size => page_size}   
+      }
+    end
+  end
+
   def show_page
 
     page_size = 25
