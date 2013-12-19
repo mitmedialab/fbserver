@@ -20,6 +20,7 @@ gem 'mysql2'
 gem 'sqlite3'
 gem 'newrelic_rpm'
 gem 'therubyracer'
+gem 'curb'
 
 
 # Gems used only for assets and not required
