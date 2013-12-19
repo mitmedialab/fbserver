@@ -10,6 +10,10 @@ class SessionsController < ApplicationController
     end
     session[:user_id] = user.id
     user.activity_logs.create(:action=>"login")
+    # upon successful login, reset failed to false
+    # since the user has re-initiated the account
+    user.failed=false
+    user.save
     redirect_to "/followbias/main", :notice => "Signed in!"
   end
 

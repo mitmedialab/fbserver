@@ -87,7 +87,8 @@ class DataObject
   end
 
   def block_api_user a
-    @db.query("UPDATE users set failed=1 WHERE screen_name = #{a.followbias_user}")
+    puts "blocking failed user"
+    @db.query("UPDATE users set failed=true WHERE screen_name = '#{a[:api_user]}';")
   end
 
   def count_stale_profile_image_accounts
@@ -109,7 +110,7 @@ class DataObject
     query = ""
     accounts.each do |account|
       query ="UPDATE accounts SET profile_image_url='#{account.profile_image_url}', screen_name='account.screen_name', profile_image_updated_at= NOW(), updated_at = NOW() WHERE uuid = '#{account.id}'; "
-      print " #{account.id},"
+      print "."
       @db.query(query)
     end
     #puts query
@@ -211,10 +212,21 @@ module CatchTwitterRateLimit
         sleep(8)
         retry
       rescue Twitter::Error::Forbidden => error
+        puts "blocking #{authdata[:api_user]}"
         db.block_api_user(authdata)
         return []
       rescue Twitter::Error::Unauthorized => error
-        return []
+        return [] if(num_attempts >= 2)
+        puts "Unauthorized: #{error} -- retrying with a different token"
+        db.block_api_user(authdata)
+        current_user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").first
+        authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
+                    :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
+                    :oauth_token => current_user['twitter_token'],
+                    :oauth_token_secret => current_user['twitter_secret'],
+                    :api_user => current_user.screen_name}
+        client = Twitter::Client.new
+        retry
       rescue Twitter::Error::ServiceUnavailable => error
         puts "Twitter::Error:ServiceUnavailable -- retrying"
         puts error
@@ -245,7 +257,8 @@ class FindExpiredTwitterIcons
       authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
                   :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                   :oauth_token => current_user['twitter_token'],
-                  :oauth_token_secret => current_user['twitter_secret']}
+                  :oauth_token_secret => current_user['twitter_secret'],
+                  :api_user => current_user.screen_name}
       client = self.catch_rate_limit(authdata, db){
         Twitter::Client.new(authdata)
       }
