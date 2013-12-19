@@ -7,14 +7,11 @@ require 'resque-lock-timeout'
 
 class ProcessUserFriends
   extend Resque::Plugins::LockTimeout
-  @queue = "fetchfriends#{Rails.env}".to_sym
+  @queue = "followbias_#{Rails.env}".to_sym
   @lock_timeout = 30
   def self.perform(authdata)
   end
 end
-
-user_counter = 0 
-users = User.where("twitter_token IS NOT NULL AND failed != true")
 
 whitelist = CSV.read(ARGV[0])
 
@@ -22,9 +19,7 @@ whitelist.each do |row|
   screen_name = row[0]
   next if !User.find_by_screen_name(screen_name).nil?
 
-  user_counter = 0 if(user_counter >= users.size)
-  user = users[user_counter]
-  user_counter += 1
+  user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").limit(1)[0]
   
   authdata = {:consumer_key => ENV["TWITTER_CONSUMER_KEY"],
               :consumer_secret => ENV["TWITTER_CONSUMER_SECRET"],
