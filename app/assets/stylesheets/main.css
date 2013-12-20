@@ -507,6 +507,16 @@ a.btn{
 #post_survey .input-mini{
   width:25px; margin-left:5px;
 }
+
+/* STYLES FOR START PAGE */
 #start{
  z-index: 100;
+}
+
+#start p{
+  font-family: "Lora",serif;
+  font-size: 12pt;
+  line-height: 100%;
+  margin-bottom: 0px;
+  color:white;
 }
