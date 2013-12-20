@@ -26,7 +26,8 @@ class CacheFollowBiasRecords
     User.all.each do |user|
       if(user.followbias_records.count == 0 or
          user.followbias_records.order("created_at ASC").last.created_at <= 10.minutes.ago)
-        print "#{user.screen_name} "
+        print "."
+        #print "#{user.screen_name} "
         count += 1
         user.cache_followbias_record
       else
@@ -44,19 +45,11 @@ class UpdateFollowBiasForAllUsers
     user_counter = 0
 
     # note that we omit people who have revoked our access
-    users = User.where("twitter_token IS NOT NULL and twitter_secret IS NOT NULL AND failed!=true")
     whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' or treatment='alpha'")
 
     whitelist.each do |row|
       screen_name = row.screen_name
-
-      if(row.twitter_token.nil? or row.twitter_secret.nil?)
-        user_counter = 0 if(user_counter >= users.size)
-        user = users[user_counter]
-        user_counter += 1
-      else
-        user = row
-      end
+      user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").limit(1)[0]
 
       authdata = {:consumer_key => ENV["TWITTER_CONSUMER_KEY"],
                   :consumer_secret => ENV["TWITTER_CONSUMER_SECRET"],
@@ -148,7 +141,7 @@ class DataObject
       if(@db.query("select 1 from accounts where screen_name='#{account.screen_name}'").size == 0)
         #@db.execute("insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender) values(?,?,?,?,?,?,?);", account.screen_name, account.name, account.profile_image_url, account.id, Time.now.to_s, Time.now.to_s, @name_gender.process(account.name)[:result])
         gender = @name_gender.process(account.name)[:result]
-        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender, profile_image_updated_at) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{gender}', NOW()}')"
+        query = "insert into accounts(screen_name, name, profile_image_url, uuid, created_at, updated_at, gender, profile_image_updated_at) values('#{account.screen_name}', \"#{account.name.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(/"/,'""')}\", '#{account.profile_image_url}', '#{account.id}', '#{Time.now.to_s}', '#{Time.now.to_s}', '#{gender}', NOW())"
         @db.query(query)
 
         #puts "CREATING AUTO RECORD"
@@ -159,7 +152,7 @@ class DataObject
         #puts gender
         judgment = @system_user.account_gender_judgments.create({:account_id => rails_acct.id, :gender=> gender})
         #puts judgment
-        puts "o"
+        print "o"
       else
         print "."
       end
