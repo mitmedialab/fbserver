@@ -31,7 +31,7 @@ class CacheFollowBiasRecords
         count += 1
         user.cache_followbias_record
       else
-        print "x "
+        print "x"
       end
     end
     Rails.logger.info "Attempted to cache followbias for #{count} "
@@ -150,6 +150,7 @@ class DataObject
         #puts @system_user.screen_name
         #puts @system_user.account_gender_judgments.size
         #puts gender
+        @system_user = User.find_by_screen_name("FollowBias System") if @system_user.nil?
         judgment = @system_user.account_gender_judgments.create({:account_id => rails_acct.id, :gender=> gender})
         #puts judgment
         print "o"
@@ -319,13 +320,26 @@ class ProcessUserFriends
     #puts followbias_user.attrs[:id]
 
 
+    error_count = 0;
     while cursor != 0 do
       friendships = self.catch_rate_limit(authdata, db) {
         client.friend_ids(followbias_user.attrs[:id], {:cursor=>cursor})
       }
-      cursor = friendships.next_cursor
-      friendship_ids.concat friendships.ids
-      print "."
+      #make sure friendships is a valid 
+      if friendships and friendships.class.name!="Array"
+        cursor = friendships.next_cursor
+        friendship_ids.concat friendships.ids
+        print "."
+      else
+        #just to be sure, try one more time if the Twitter API Exceptions fire
+        if error_count >= 1
+          error_count = 0
+          cursor = 0
+        else
+          error_count +=1
+          puts "Twitter API error. Trying again"
+        end
+      end
     end
     print " #{friendship_ids.size}"
 
