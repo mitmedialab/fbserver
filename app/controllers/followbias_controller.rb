@@ -237,7 +237,9 @@ class FollowbiasController < ApplicationController
     authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
                 :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                 :oauth_token => @current_user['twitter_token'],
-                :oauth_token_secret => @current_user['twitter_secret']}
+                :oauth_token_secret => @current_user['twitter_secret'],
+                :api_user => @current_user.screen_name,
+                :followbias_user=>@current_user.screen_name}
     Resque.enqueue(ProcessUserFriends, authdata)
     render :layout=>"main"
   end
@@ -251,7 +253,9 @@ class FollowbiasController < ApplicationController
       authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
                   :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                   :oauth_token => @current_user['twitter_token'],
-                  :oauth_token_secret => @current_user['twitter_secret']}
+                  :oauth_token_secret => @current_user['twitter_secret'],
+                  :api_user => @current_user.screen_name,
+                  :followbias_user=>@current_user.screen_name}
       #if(@current_user.friends.nil? or @current_user.friends=="")
         Resque.enqueue(ProcessUserFriends, authdata)
       #end

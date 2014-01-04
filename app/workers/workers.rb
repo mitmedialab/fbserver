@@ -23,7 +23,7 @@ class CacheFollowBiasRecords
   
   def self.perform
     count = 0 
-    User.all.each do |user|
+    User.where("treatment!='new' AND treatment!='pop'").find_each do |user|
       if(user.followbias_records.count == 0 or
          user.followbias_records.order("created_at ASC").last.created_at <= 10.minutes.ago)
         print "."
@@ -276,6 +276,61 @@ class FindExpiredTwitterIcons
       else
         print "x"
       end
+    end
+  end
+end
+
+class ArchiveTweetsFromUserAccounts
+  include CatchTwitterRateLimit
+  @queue = "followbias_jobs_#{Rails.env}".to_sym
+
+  # code adapted from iron_ebooks, originally by Jacob Harris
+  # https://github.com/natematias/iron_ebooks
+  def self.file_exists? account, dir
+    File.exist?(File.join(dir, "#{account}.json"))
+  end
+  def self.perform task
+    puts task
+    account = task["account"]
+    dir = task["dir"]
+    if self.file_exists?(account, dir)
+      puts "file exists"
+      return
+    end
+    db = DataObject.new
+    current_user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").first
+    authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
+                :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
+                :oauth_token => current_user['twitter_token'],
+                  :oauth_token_secret => current_user['twitter_secret'],
+                  :api_user => current_user.screen_name}
+    client = self.catch_rate_limit(authdata, db){
+              Twitter::Client.new(authdata)
+             }
+    puts account
+    user_tweets = []
+    authdata[:followbias_user] = account
+    print "o"
+    tweets = self.catch_rate_limit(authdata, db){client.user_timeline(account, :count => 200, :trim_user => true, :exclude_replies => false, :include_rts => true, :include_entities=>true)}
+    print "."
+    if(tweets and tweets.size > 0 )
+      max_id = tweets.last.id
+      user_tweets.concat tweets
+
+      17.times do
+        print "."
+        tweets = []
+        tweets = self.catch_rate_limit(authdata, db){
+          client.user_timeline(account, :count => 200, :trim_user => true, :max_id => max_id - 1, :exclude_replies => false, :include_rts => true, :include_entities=>true)
+        }
+        puts "MAX_ID #{max_id} TWEETS: #{user_tweets.length}"
+        break if tweets.last.nil?
+        max_id = tweets.last.id
+        user_tweets.concat tweets
+      end
+    end
+    File.open(File.join(dir, "#{account}.json"), "w") do |f|
+      f.puts user_tweets.to_json
     end
   end
 end
