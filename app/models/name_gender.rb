@@ -13,6 +13,7 @@ class NameGender
     end
 
     def process(name)
+      return {:result=>"Unknown", :counts=>{ :male => 0.0, :female => 0.0 }} if name.nil? or name.strip.size == 0
 
       score = { :result => "", :counts => 0 }
 
