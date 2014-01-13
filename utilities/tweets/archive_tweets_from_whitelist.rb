@@ -1,5 +1,5 @@
-require File.join(File.dirname(__FILE__), '..', 'config', 'environment.rb')
-require File.join(File.dirname(__FILE__), '..', 'app', 'workers', 'workers.rb')
+require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment.rb')
+require File.join(File.dirname(__FILE__), '..', '..', 'app', 'workers', 'workers.rb')
 require 'csv'
 require 'resque'
 require 'resque-lock-timeout'
