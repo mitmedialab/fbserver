@@ -2,9 +2,9 @@ require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment.rb'
 
 
 
-puts "user_id,group,user.screen_name, gender, total_actions, login_date, total_followbias_records,first followbias date, ffb male, ffb female, ffb unknown, login followbias date, lfb male, lfb female, lfb unknown, end followbias date, efb male, efb female, efb unknown, 2nd wk followbias date, 2nd male, 2nd female, 2nd unknown"
+puts "user.id,user.group,user.screen_name, user.gender, user.total_actions, user.login_date, user.total_followbias_records,ffb.date, ffb.male, ffb.female, ffb.unknown, lfb.date, lfb.male, lfb.female, lfb.unknown, 1fb.date, 1fb.male, 1fb.female, 1fb.unknown, 2fb.date, 2fb.male, 2fb.female, 2fb.unknown"
 
-User.where("(treatment='test' OR treatment='ctl') AND twitter_token IS NOT NULL").each do |user|
+User.where("(treatment='test' OR treatment='ctl') AND twitter_token IS NOT NULL and survey_complete=true ").each do |user|
   # verify that they took the survey and returned to the site
   login = user.activity_logs.where("action='pre_survey_complete'")
   if(login.size>0 and user.followbias_records.size > 0 )
