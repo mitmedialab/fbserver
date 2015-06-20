@@ -137,11 +137,29 @@ class User < ActiveRecord::Base
     # run this repeatedly for the dates of those friendrecords
     friendrecord = self.friendsrecords.where("created_at <= '#{datetime.to_s(:db)}' AND incomplete IS FALSE").order("created_at ASC").last
     return [] if friendrecord.nil?
+    return followbias_for_record friendrecord, perception
+    #score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
+    #accounts = Account.where("uuid IN (?)", JSON.parse(friendrecord.friends))
+#
+#    accounts.each do |account|
+#      gender = account.gender_at_time datetime if perception
+#      gender = account.gender unless perception
+#      score[:male] += 1 if gender=="Male"
+#      score[:female] += 1 if gender == "Female"
+#      score[:total_following] += 1
+#    end
+#    score[:unknown] = score[:total_following] - score[:male] - score[:female]
+#    score[:account] = self.screen_name
+#    score
+  end
+
+  def followbias_for_record friendrecord, perception = true
+    return nil if friendrecord.nil?
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
     accounts = Account.where("uuid IN (?)", JSON.parse(friendrecord.friends))
 
     accounts.each do |account|
-      gender = account.gender_at_time datetime if perception
+      gender = account.gender_at_time friendrecord.created_at if perception
       gender = account.gender unless perception
       score[:male] += 1 if gender=="Male"
       score[:female] += 1 if gender == "Female"
@@ -150,6 +168,7 @@ class User < ActiveRecord::Base
     score[:unknown] = score[:total_following] - score[:male] - score[:female]
     score[:account] = self.screen_name
     score
+
   end
 
   def followbias

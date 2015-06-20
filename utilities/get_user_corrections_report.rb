@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '..', 'config', 'environment.rb')
 
 correction_users = []
-all_users = User.where("treatment='test'")
+all_users = User.where("treatment='test' AND survey_complete=true")
 total_user_corrections = 0
 
 puts "fetching corrections user"

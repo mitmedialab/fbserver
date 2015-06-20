@@ -35,6 +35,7 @@ User.where("(treatment='test' OR treatment='ctl') AND twitter_token IS NOT NULL 
     nfr = user.friendsrecords.order(:created_at).where("created_at >= '#{login_date + 2.week}' AND created_at <='#{login_date + 3.week}' AND incomplete IS FALSE").first
     ofr = user.friendsrecords.order(:created_at).where("created_at >= '#{login_date + 3.week}' AND incomplete IS FALSE").first
 
+    efr_created_at = ffr_created_at = lfr_created_at = nfr_created_at = ofr_created_at =  nil
     ffr_created_at = ffr.created_at if ffr
     lfr_created_at = lfr.created_at if lfr
     efr_created_at = efr.created_at if efr

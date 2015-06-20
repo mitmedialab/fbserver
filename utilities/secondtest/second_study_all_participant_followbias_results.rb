@@ -3,12 +3,17 @@ require 'digest/sha1'
 
 puts "user.id,user.group,user.screen_name, user.gender, user.total_actions, user.total_suggestion_views, user.correction_views, user.suggestion_page_reload, user.suggestions, user.corrections, user.login_date, user.total_followbias_records,ffb.date, ffb.male, ffb.female, ffb.unknown, lfb.date, lfb.male, lfb.female, lfb.unknown, 1fb.date, 1fb.male, 1fb.female, 1fb.unknown, 2fb.date, 2fb.male, 2fb.female, 2fb.unknown, 3fb.date, 3fb.male, 3fb.female, 3fb.unknown, post_survey,satisfied_with_followbias,will_it_influence,how_change,percent_women_goal,survey_id"
 
-User.where("(treatment='test' OR treatment='ctl') AND twitter_token IS NOT NULL and survey_complete=true ").each do |user|
+User.where("(treatment='test' OR treatment='ctl') AND twitter_token IS NOT NULL").each do |user|
   # verify that they took the survey and returned to the site
   login = user.activity_logs.where("action='pre_survey_complete'")
-  if(login.size>0 and user.followbias_records.size > 0 )
+  if(user.friendsrecords.size > 0 )
     id = user.id
-    login_date = login[0].created_at
+    if(login.size>0)
+      login_date = login[0].created_at
+    else
+      login_record = user.friendsrecords.order(:created_at).where("created_at >= '#{Date.parse("2013-12-20")}'").first
+      login_date = login_record.created_at
+    end
     total_actions = user.activity_logs.size
     total_followbias = user.followbias_records.size
     gender = "Unknown"
@@ -89,11 +94,14 @@ User.where("(treatment='test' OR treatment='ctl') AND twitter_token IS NOT NULL 
     how_change = post_survey["change"] if post_survey
     percent_women_goal = post_survey["percent_women_goal"] if post_survey
 
+    treatment = user.treatment 
+    treatment="outside" if !user.survey_complete
+
     # user id, login date, total actions, 
     # first followbias date, ffb male, ffb female, ffb unknown,
     # login followbias date, lfb male, lfb female, lfb unknown
     # end followbias date, efb male, efb female, efb unknown
-    puts [user.id, user.treatment, user.screen_name, gender, total_actions, 
+    puts [user.id, treatment, user.screen_name, gender, total_actions, 
           total_suggestion_views, total_correction_views, total_suggestion_page_reload, total_suggestions, total_corrections,
           login_date, total_followbias,
           ffb_created_at, ffb_male, ffb_female, ffb_unknown,
