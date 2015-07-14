@@ -23,7 +23,7 @@ class CacheFollowBiasRecords
   
   def self.perform
     count = 0 
-    User.where("treatment!='new' AND treatment!='pop'").find_each do |user|
+    User.where("treatment!='new'").find_each do |user|
       if(user.followbias_records.count == 0 or
          user.followbias_records.order("created_at ASC").last.created_at <= 10.minutes.ago)
         print "."
@@ -34,6 +34,7 @@ class CacheFollowBiasRecords
         print "x"
       end
     end
+    puts
     Rails.logger.info "Attempted to cache followbias for #{count} "
   end
 end
@@ -45,7 +46,7 @@ class UpdateFollowBiasForAllUsers
     user_counter = 0
 
     # note that we omit people who have revoked our access
-    whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' or treatment='alpha'")
+    whitelist = User.where("treatment='test' OR treatment='ctl'")# or treatment='exp' or treatment='new' or treatment='alpha' or treatment LIKE '%test%' or treatment LIKE '%ctl%'")
 
     whitelist.each do |row|
       screen_name = row.screen_name
@@ -172,7 +173,7 @@ class DataObject
   end
 
   def too_soon followbias_user
-    query = "select 1 from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{followbias_user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 350 MINUTE);"
+    query = "select screen_name from users join friendsrecords on users.id = friendsrecords.user_id where users.uid=#{followbias_user.attrs[:id]} AND friendsrecords.created_at > (NOW() - INTERVAL 350 MINUTE);"
     #puts query
     @db.query(query).size > 0
   end
@@ -218,16 +219,16 @@ module CatchTwitterRateLimit
         db.block_api_user(authdata)
         return []
       rescue Twitter::Error::Unauthorized => error
-        return [] if(num_attempts >= 2)
         puts "Unauthorized: #{error} -- retrying with a different token"
         db.block_api_user(authdata)
+        return [] if(num_attempts >= 2)
         current_user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").first
         authdata = {:consumer_key => ENV['TWITTER_CONSUMER_KEY'],
                     :consumer_secret => ENV['TWITTER_CONSUMER_SECRET'],
                     :oauth_token => current_user['twitter_token'],
                     :oauth_token_secret => current_user['twitter_secret'],
                     :api_user => current_user.screen_name}
-        client = Twitter::Client.new
+        client = Twitter::Client.new(authdata)
         retry
       rescue Twitter::Error::ServiceUnavailable => error
         puts "Twitter::Error:ServiceUnavailable -- retrying"
@@ -289,9 +290,12 @@ class ArchiveTweetsFromUserAccounts
   def self.file_exists? account, dir
     File.exist?(File.join(dir, "#{account}.json"))
   end
+
   def self.perform task
     puts task
-    account = task["account"]
+
+    account = task["account"] #TODO JNM
+
     dir = task["dir"]
     if self.file_exists?(account, dir)
       puts "file exists"
@@ -309,7 +313,7 @@ class ArchiveTweetsFromUserAccounts
              }
     puts account
     user_tweets = []
-    authdata[:followbias_user] = account
+    authdata[:followbias_user] = account #TODO JNM
     print "o"
     tweets = self.catch_rate_limit(authdata, db){client.user_timeline(account, :count => 200, :trim_user => true, :exclude_replies => false, :include_rts => true, :include_entities=>true)}
     print "."
@@ -337,8 +341,8 @@ end
 
 class ProcessUserFriends
   include CatchTwitterRateLimit
-  @queue = "followbias_#{Rails.env}".to_sym
-  #@queue = "fetchfriends#{Rails.env}".to_sym
+  #@queue = "followbias_#{Rails.env}".to_sym
+  @queue = "fetchfriends#{Rails.env}".to_sym
 
   def self.perform(authdata)
     db = DataObject.new
@@ -355,7 +359,16 @@ class ProcessUserFriends
     }
 
     if(!authdata[:followbias_user].nil?)
-      followbias_user = client.user(authdata[:followbias_user])
+      # handle screen name and ID cases
+      # by converting user_id to an integer only if it is one
+      user_identifier = Integer(authdata[:followbias_user]) rescue false
+      if(user_identifier == false)
+        user_identifier = authdata[:followbias_user]
+      end
+
+      followbias_user = self.catch_rate_limit(authdata, db){
+        client.user(user_identifier)
+      }
       if(!db.user_exists? followbias_user.screen_name)
         db.create_user(followbias_user)
       end
@@ -408,6 +421,7 @@ class ProcessUserFriends
 
     all_follow_data = []
 
+    # TODO: POSSIBLE OPPORTUNITY TO BREAK OUT A PARALLEL TASK
     puts "fetching friendship data"
     while more
       if head + 100 > new_follows.size

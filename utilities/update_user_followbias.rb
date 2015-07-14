@@ -13,15 +13,28 @@ class ProcessUserFriends
   end
 end
 
+# OPTIONAL LIMIT ARGUMENT
+# Usage: ruby update_user_followbias.rb <LIMIT>
+addendum = nil
+if(ARGV.size>0)
+  addendum = ARGV[0].to_i
+end
+
 user_counter = 0 
 users = User.where("twitter_token IS NOT NULL and twitter_secret IS NOT NULL AND failed!=true")
 
-whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' AND failed!=true")
+if(!addendum.nil?)
+  whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' AND failed!=true ").limit(addendum)
+else
+  whitelist = User.where("treatment='test' OR treatment='ctl' or treatment='exp' or treatment='new' AND failed!=true ")
+end
+
 
 puts "whitelist #{whitelist.size}"
 
 whitelist.each do |row|
   screen_name = row.screen_name
+  twitter_id = row.uid
 
   if(row.twitter_token.nil? or row.twitter_secret.nil?)
     user_counter = 0 if(user_counter >= users.size)
@@ -36,7 +49,7 @@ whitelist.each do |row|
               :oauth_token => user.twitter_token,
               :oauth_token_secret => user.twitter_secret,
               :api_user => user.screen_name,
-              :followbias_user => screen_name}
+              :followbias_user => twitter_id}
   Resque.enqueue(ProcessUserFriends, authdata)
   puts authdata
 end
