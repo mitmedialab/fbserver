@@ -161,4 +161,9 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "Account", users(:four).receive_random_suggestions(2)[0].class.name
   end
 
+  test "retrieve userstats" do
+    assert_nil users(:two).userstats
+    assert_equal 49264, users(:three).userstats['followers_count']
+  end
+
 end

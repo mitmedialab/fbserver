@@ -80,6 +80,16 @@ class User < ActiveRecord::Base
     account.account_suggestion.remove_user self
   end
 
+  #TODO: write a test for this
+  def userstats
+    last = self.friendrecords.last
+    if last.twitter_json.nil?
+      return nil
+    else
+     return JSON.load(last.twitter_json)
+    end
+  end
+
   #TODO: refactor to allow users to specify a friendsrecord
   #TODO: refactor to allow users to specify a date
   def all_friends
