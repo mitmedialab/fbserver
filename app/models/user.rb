@@ -83,10 +83,10 @@ class User < ActiveRecord::Base
   #TODO: write a test for this
   def userstats
     last = self.friendrecords.last
-    if last.twitter_json.nil?
+    if last.nil? or last.twitter_json.nil?
       return nil
     else
-     return JSON.load(last.twitter_json)
+     return JSON.parse(last.twitter_json)
     end
   end
 
