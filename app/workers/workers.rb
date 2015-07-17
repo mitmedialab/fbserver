@@ -457,7 +457,7 @@ class ProcessUserFriends
     follows = friendship_ids
 
     puts "checking redundant accounts"
-    new_follows =follows  db.strip_redundant_accounts follows
+    new_follows = db.strip_redundant_accounts follows
     puts "fetching friendship data for #{follows.size} accounts"
 
     all_follow_data = []
