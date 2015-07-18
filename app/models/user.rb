@@ -94,15 +94,27 @@ class User < ActiveRecord::Base
   #TODO: refactor to allow users to specify a date
   def all_friends
     last = self.friendrecords.last
+    #accounts = []
+    # Note: we avoid parsing the JSON by just counting commas here
+    if !last.nil? and last.friends.count(",") > MAX_FRIENDS
+      return []
+    end
     unless last.nil? or last.friends==""
-      #begin
-        Account.where("uuid IN (?)", JSON.parse(last.friends))
-      #rescue Exception => e
-      #  puts e
-        #puts "FRIENDS: #{last.friends}"
-        #exit(1)
-      #  []
-      #end
+    #  more = true
+    #  head = 0
+    #  id_list = JSON.parse(last.friends)
+    #  page_size = 200
+    #  return_list = []
+    #  while more
+    #    if head + page_size > id_list.size
+    #      more = false
+    #    end
+    #    break if id_list[head, page_size].size == 0
+    #    #where = "uuid IN (#{id_list[head, page_size].join(",")})"
+    #    accounts.concat Account.where("uuid IN (?)", id_list[head, page_size])
+    #  end
+    #  return accounts
+      return Account.where("uuid IN (?)", JSON.parse(last.friends))
     else
       []
     end
@@ -204,6 +216,9 @@ class User < ActiveRecord::Base
   end
 
   # TODO: CREATE NEW METHOD TO CACHE FOR A SPECIFIC FRIENDSRECORD
+
+  # TODO: optimize this method
+
   def cache_followbias_record
     return nil if self.friendrecords.last.nil? or self.friendsrecords.where("incomplete IS FALSE").order("created_at ASC").last.friends == ""
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
@@ -213,6 +228,7 @@ class User < ActiveRecord::Base
       score[:female] += 1 if gender == "Female"
       score[:total_following] += 1
     end
+    print "lol"
     score[:unknown] = score[:total_following] - score[:male] - score[:female]
 
     # determine if you should cache this
