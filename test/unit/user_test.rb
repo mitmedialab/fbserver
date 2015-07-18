@@ -23,7 +23,7 @@ class UserTest < ActiveSupport::TestCase
   test "all friends paged, gender sorted" do
     friends = users(:one).all_friends_paged(2,0,"suggest")
     assert_not_equal nil, friends
-    friends.each{|i|puts i.screen_name}
+    #friends.each{|i|puts i.screen_name}
     assert_equal accounts(:five).uuid, friends[0].uuid
   end
 
