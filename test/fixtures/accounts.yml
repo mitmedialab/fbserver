@@ -6,7 +6,7 @@
 #
 one:
   id: 1
-  uuid: 001
+  uuid: 1001
   screen_name: maleperson
   name: Kent Clark
   gender: Male
@@ -14,7 +14,7 @@ one:
   
 two:
   id: 2
-  uuid: 002
+  uuid: 1002
   screen_name: femaleperson
   name: Louis Lane
   gender: Male # used to be female, but changed to reflect the caching system
@@ -22,7 +22,7 @@ two:
 
 three:
   id: 3
-  uuid: 003
+  uuid: 1003
   screen_name: corporation
   name: CyberdyneSystems
   gender: Unknown
@@ -30,7 +30,7 @@ three:
 
 four:
   id: 4
-  uuid: 004
+  uuid: 1004
   screen_name: malepersontwo
   name: William Shakespeare
   gender: Male
@@ -38,7 +38,7 @@ four:
 
 five:
   id: 5
-  uuid: 005
+  uuid: 1005
   screen_name: femalepersontwo
   name: Elizabeth The First
   gender: Female
@@ -46,7 +46,7 @@ five:
 
 six:
   id: 6
-  uuid: 006
+  uuid: 1006
   screen_name: femalepersonthree
   name: Alice Liddell
   gender: Female
@@ -54,7 +54,7 @@ six:
 
 seven:
   id: 7
-  uuid: 007
+  uuid: 1007
   screen_name: corporationtwo
   name: Acme Corp
   gender: Unknown

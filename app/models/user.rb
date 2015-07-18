@@ -96,28 +96,37 @@ class User < ActiveRecord::Base
     last = self.friendrecords.last
     #accounts = []
     # Note: we avoid parsing the JSON by just counting commas here
-    if !last.nil? and last.friends.count(",") > MAX_FRIENDS
+    # last.friends <= 3 when there are no friends in the list
+    if !last.nil? and (last.friends.count(",") > MAX_FRIENDS or last.friends.size<=3)
       return []
     end
-    unless last.nil? or last.friends==""
-    #  more = true
-    #  head = 0
-    #  id_list = JSON.parse(last.friends)
-    #  page_size = 200
-    #  return_list = []
-    #  while more
-    #    if head + page_size > id_list.size
-    #      more = false
-    #    end
-    #    break if id_list[head, page_size].size == 0
-    #    #where = "uuid IN (#{id_list[head, page_size].join(",")})"
-    #    accounts.concat Account.where("uuid IN (?)", id_list[head, page_size])
-    #  end
-    #  return accounts
-      return Account.where("uuid IN (?)", JSON.parse(last.friends))
-    else
-      []
+
+    table_name = "all_friends_temp"
+    ActiveRecord::Base.connection.execute "DROP TEMPORARY TABLE IF EXISTS #{table_name};"
+    ActiveRecord::Base.connection.execute "CREATE TEMPORARY TABLE #{table_name}(t_uuid BIGINT);"
+    ActiveRecord::Base.connection.execute "INSERT INTO #{table_name}(t_uuid) values(#{last.friends.gsub(",", "),(")[1..-2]});"
+    return Account.find_by_sql("SELECT accounts.* from #{table_name} JOIN accounts ON accounts.uuid=t_uuid;")
+  end
+
+  # this only fetches the gender of accounts
+  # used to cache the followbias score
+  def all_friends_gender
+    last = self.friendrecords.last
+    # last.friends <= 3 when there are no friends in the list
+    if last.nil? or last.friends.nil? or last.friends.count(",") > MAX_FRIENDS or last.friends.size<=3
+      return []
     end
+    # return a list of genders associated with accounts
+    # TODO: consider a faster option than parsing then rejoining
+    # you can probably
+    #  1. check for closing braces
+    #  2. replace the braces with parens
+    #  3. insert it straight into the query
+    table_name = "all_friends_gender_temp"
+    ActiveRecord::Base.connection.execute "DROP TEMPORARY TABLE IF EXISTS #{table_name};"
+    ActiveRecord::Base.connection.execute "CREATE TEMPORARY TABLE #{table_name}(t_uuid BIGINT);"
+    ActiveRecord::Base.connection.execute "INSERT INTO #{table_name}(t_uuid) values(#{last.friends.gsub(",", "),(")[1..-2]});"
+    return ActiveRecord::Base.connection.exec_query("SELECT accounts.gender FROM #{table_name} JOIN accounts ON accounts.uuid=t_uuid;").rows
   end
 
   def sample_friends
@@ -138,10 +147,10 @@ class User < ActiveRecord::Base
     last = friendrecords.last
     unless last.nil?
       if(sort =="suggest")
-        Account.find_by_sql(["select * from accounts WHERE UUID IN (?) ORDER BY gender ASC LIMIT #{offset.to_i},#{limit.to_i}", JSON.parse(last.friends)])
+        Account.find_by_sql("select * from accounts WHERE UUID IN (#{JSON.parse(last.friends).join(",")}) ORDER BY gender ASC LIMIT #{offset.to_i},#{limit.to_i};")
       else
         #sort by occurrence of ' ' to prioritise likely miscategorised accounts
-        Account.where("uuid IN (?)", JSON.parse(last.friends)).order("INSTR(name,' ') ASC").limit(limit).offset(offset)
+        Account.where("uuid IN (#{JSON.parse(last.friends).join(",")})").order("INSTR(name,' ') ASC").limit(limit).offset(offset)
       end
 
       # when sorting, prioritize items for which there is no custom gender
@@ -215,21 +224,25 @@ class User < ActiveRecord::Base
     end
   end
 
-  # TODO: CREATE NEW METHOD TO CACHE FOR A SPECIFIC FRIENDSRECORD
 
-  # TODO: optimize this method
-
-  def cache_followbias_record
-    return nil if self.friendrecords.last.nil? or self.friendsrecords.where("incomplete IS FALSE").order("created_at ASC").last.friends == ""
+  def all_friends_fb_score
     score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
-    self.all_friends.each do |account|
-      gender = account.gender
+    genders = self.all_friends_gender
+    genders.each do |grow| 
+      gender = grow[0]
       score[:male] += 1 if gender=="Male"
       score[:female] += 1 if gender == "Female"
       score[:total_following] += 1
-    end
-    print "lol"
+    end 
     score[:unknown] = score[:total_following] - score[:male] - score[:female]
+    return score
+  end
+
+  # TODO: CREATE NEW METHOD TO CACHE FOR A SPECIFIC FRIENDSRECORD
+  def cache_followbias_record
+    # CONSIDER REFACTORING OUT THIS LINE
+    return nil if self.friendrecords.last.nil? or self.friendsrecords.where("incomplete IS FALSE").order("created_at ASC").last.friends == ""
+    score = self.all_friends_fb_score
 
     # determine if you should cache this
     fbr = self.followbias_records.last

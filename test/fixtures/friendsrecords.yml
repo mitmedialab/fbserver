@@ -6,17 +6,17 @@
 #
 one: 
   user_id: 1
-  friends: !str '["001","002","003","005"]'
+  friends: !str '[1001,1002,1003,1005]'
 
 # column: value
 #
 two: 
   user_id: 2
-  friends: !str '["001","002","003","004"]'
+  friends: !str '[1001,1002,1003,1004]'
 
 three: 
   user_id: 3
-  friends: !str '["001","002","003","004","005","006","007"]'
+  friends: !str '[1001,1002,1003,1004,1005,1006,1007]'
   twitter_json:  "{\"id\":103,\"id_str\":\"103\",\"name\":\"Jane Austen\",\"screen_name\":\"janeausten\", \"followers_count\":49264}"
 
 four:
@@ -25,7 +25,7 @@ four:
 
 five: 
   user_id: 3
-  friends: !str '["001","002","003","004","005","006","007"'
+  friends: !str '[1001,1002,1003,1004,1005,1006,1007'
   incomplete: true
 
 #  column: value

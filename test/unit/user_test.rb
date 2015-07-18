@@ -61,7 +61,7 @@ class UserTest < ActiveSupport::TestCase
     #updating time so the latest record does get returned as .last
     fbr.created_at = 1.day.ago 
     fbr.save!
-   
+
     user.cache_followbias_record
     assert_no_difference 'user.followbias_records.size' do
       bias = user.followbias
