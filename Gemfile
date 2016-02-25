@@ -7,6 +7,7 @@ gem 'rails', '3.2.11'
 
 #gem 'sqlite3'
 #gem 'twitter_oauth'
+gem 'simple_stats'
 gem 'twitter'
 gem 'omniauth-twitter'
 gem 'resque'
@@ -18,9 +19,11 @@ gem 'yaml_db'
 gem 'mysql', '~>2.8.1'
 gem 'mysql2'
 gem 'sqlite3'
-gem 'newrelic_rpm'
+#gem 'newrelic_rpm'
 gem 'therubyracer'
 gem 'curb'
+gem 'ruby-prof'
+gem 'bloom-filter'
 
 
 # Gems used only for assets and not required
