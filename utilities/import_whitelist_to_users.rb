@@ -18,6 +18,7 @@ whitelist = CSV.read(ARGV[0])
 whitelist.each do |row|
   screen_name = row[0]
   next if !User.find_by_screen_name(screen_name).nil?
+  puts screen_name
 
   user = User.order("RAND()").where("twitter_secret IS NOT NULL AND failed IS NOT TRUE").limit(1)[0]
   

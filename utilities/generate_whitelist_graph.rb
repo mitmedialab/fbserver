@@ -7,22 +7,29 @@ require 'bloom-filter'
 
 all_accounts = BloomFilter.new size: 10_000_000, error_rate: 0.01
 all_users = BloomFilter.new size: 10000, error_rate: 0.01
+all_journalists = BloomFilter.new size: 10000, error_rate: 0.01
 
 
 #all_accounts = []
 #all_users = []
 
-whitelist = CSV.read(ARGV[0])
-screen_names = []
+whitelist = CSV.read(ARGV[0], headers: true)
+sample = []
 whitelist.each do |row|
-  screen_names << {:screen_name=>row[2] , :publisher=>row[1]}
+  sample << {:screen_name=>row["account"] , :publisher=>row["publisher"],:state=>row["state"]}
+  all_journalists.insert row["account"]
 end
+
+puts "Screen Names: #{sample.size}"
 
 i = 0
 File.open(ARGV[1], "w") do |file|
   file.puts("digraph journalists{\n")
-  screen_names.each do |screen_name|
-    user = User.find_by_screen_name(screen_name[:screen_name])
+  sample.each do |row|
+    screen_name = row[:screen_name]
+    publisher = row[:publisher]
+    state = row[:state]
+    user = User.find_by_screen_name(screen_name)
     if(!user.nil?)
 			puts "#{i}: #{user.screen_name}"
       i += 1
@@ -52,14 +59,21 @@ File.open(ARGV[1], "w") do |file|
 			stats = {"followers_count" => 0} if stats.nil? 
 			followers_count = stats['followers_count']
       if(!account.nil?)
-		  	file.puts "  #{user.uid} [type=user, gender=#{account.gender}, followers=#{followers_count}, name='#{user.name}', screen_name='#{user.screen_name}', publisher='#{screen_name[:publisher]}'];"
+		  	file.puts "  #{user.uid} [type=user, gender=#{account.gender}, followers=#{followers_count}, name=#{user.name.gsub(/[^\w]/,"")}, screen_name=#{user.screen_name}, publisher=#{publisher.gsub(/[^\w]/,"")}, state=#{state.gsub(/[^\w]/,"")}];"
 
 			  friends.each do |friend|
-			  	if !all_users.include?(friend.uuid) and !all_accounts.include?(friend.uuid)
-				  	file.puts "  #{user.uid} [type=account, gender=#{friend.gender}, name='#{friend.name}', screen_name='#{friend.screen_name}'];" 
-					  all_accounts.insert friend.uuid
-				  end
-				  file.puts "  #{user.uid} -> #{friend.uuid};"
+
+          ## Only include the graph of journalist co-following relationships
+          if all_journalists.include?(friend.screen_name)
+
+						if !all_users.include?(friend.uuid) and !all_accounts.include?(friend.uuid)
+							#file.puts "  #{user.uid} [type=account, gender=#{friend.gender}, name=#{friend.name.gsub(/[^\w]/,"")}, screen_name=#{friend.screen_name.gsub(/[^\w]/,"")}];" 
+							all_accounts.insert friend.uuid
+						end
+						file.puts "  #{user.uid} -> #{friend.uuid};"
+
+          end
+
         end
       end
     end
