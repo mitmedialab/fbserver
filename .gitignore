@@ -9,3 +9,4 @@ public/assets
 utilities/*.csv
 tmp
 log
+*.swo

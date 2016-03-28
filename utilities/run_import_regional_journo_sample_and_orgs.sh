@@ -1,0 +1,1 @@
+ruby import_regional_journo_sample_and_orgs.rb /mnt/data/regional_journos_feb_2016/twitter_users_with_publishers.csv /mnt/data/regional_journos_feb_2016/org_keys_with_city.csv RegionalJournalists all

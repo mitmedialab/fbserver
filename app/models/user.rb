@@ -6,6 +6,8 @@ class User < ActiveRecord::Base
   has_many :account_gender_judgments
   has_many :activity_logs
   has_many :followbias_records
+  has_and_belongs_to_many :segments
+  has_and_belongs_to_many :organizations
 
   def self.create_with_omniauth(auth)
     create! do |user|
