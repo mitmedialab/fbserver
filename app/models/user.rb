@@ -268,11 +268,7 @@ class User < ActiveRecord::Base
   # WITH ACCOUNTS FROM THE ORGANIZATION
   # This is used to subtract org followbias
   # from a final followbias score
-  def organization_followbias organization
-    puts organization.name
-    score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
-    
-    # step one: get a list of org users
+  def organization_users organization
     org_users = []
     self.organizations.each do |org|
       if(org == organization)
@@ -281,7 +277,12 @@ class User < ActiveRecord::Base
 				end
       end
     end 
+    return org_users
+  end
 
+  def organization_followbias organization
+    score = {:male=>0, :female=>0, :unknown=>0, :total_following=>0}
+    org_users = organization_users organization    
     # step two: get a list of all followed_users
     self.all_friends.each do |friend|
       if org_users.include? friend.uuid
