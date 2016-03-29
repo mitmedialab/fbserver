@@ -166,4 +166,26 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 49264, users(:three).userstats['followers_count']
   end
 
+  test "get followbias for organization users" do
+    user = users(:one)
+    friend_array = JSON.parse(user.friendsrecords.last.friends) << users(:three).uid
+    Friendsrecord.create(:user=>users(:one), :friends => friend_array.to_s)
+    
+    bias = user.organization_followbias(organizations(:one))
+    assert_equal 0, bias[:male]
+    assert_equal 1, bias[:female]
+    assert_equal 0, bias[:unknown]
+    assert_equal 1, bias[:total_following]
+  end
+
+  test "get followbias minus organization users" do 
+    user = users(:one)
+    friend_array = JSON.parse(user.friendsrecords.last.friends) << users(:three).uid
+    Friendsrecord.create(:user=>users(:one), :friends => friend_array.to_s)
+    bias = user.non_organization_followbias(organizations(:one))
+    assert_equal 2, bias[:male]
+    assert_equal 1, bias[:female]
+    assert_equal 1, bias[:unknown]
+    assert_equal 4, bias[:total_following]
+  end
 end

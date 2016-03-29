@@ -2,5 +2,5 @@
 class Friendsrecord < ActiveRecord::Base
   belongs_to :user
   has_many :followbias_records
-  # attr_accessible :title, :body
+  attr_accessible :user, :friends
 end
