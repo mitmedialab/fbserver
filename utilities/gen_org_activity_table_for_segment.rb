@@ -66,9 +66,16 @@ Dir.glob(ARGV[0] + '*.json', File::FNM_DOTMATCH) do |f|
       end
 
       #if(all_users.include? user_id)
+
+      if(fbuser.gender)
+        u_gender = fbuser.gender
+      else
+        u_gender = gender.process(fbuser.name)[:result]
+      end
+
       userhash = {
         "uid" => user_id,
-        "gender" => gender.process(fbuser.name)[:result],
+        "gender" => u_gender,
         "tweets_mentioning_people" => (tweet['entities']['user_mentions'].size > 0) ? 1 : 0,
         "unique_mentions_per_tweet" => nil
       }.merge(fbrecord).merge(fbrecord_nonorg)
