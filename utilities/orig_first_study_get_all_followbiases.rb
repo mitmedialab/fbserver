@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '..', 'config', 'environment.rb')
 
-test_users = User.where("treatment='test'")
-ctl_users = User.where("treatment='ctl' or treatment='ctl1'")
+test_users = User.where("treatment='04.2013.test'")
+ctl_users = User.where("treatment='04.2013.ctl' or treatment='04.2013.ctl1'")
 
 def print_row user
   begin
