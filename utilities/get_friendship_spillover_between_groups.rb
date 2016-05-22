@@ -32,7 +32,7 @@ end
 
 all_user_csv_array = []
 
-CSV.foreach("/mnt/data/corrections.5.22.2016/first_deployment_results_merged_with_survey_05_21_2017.csv", :headers=>true) do |row|
+CSV.foreach("/mnt/data/corrections.5.22.2016/first_deployment_results_merged_with_survey_05_21_2016.csv", :headers=>true) do |row|
   user = User.find_by_id(row['user.id'])
   friend_record = user.friendsrecords.where("created_at = '#{row['lfb.date']}'").first
 
@@ -46,11 +46,12 @@ CSV.foreach("/mnt/data/corrections.5.22.2016/first_deployment_results_merged_wit
     test_exposure += 1 if test_names.include? friend.screen_name
   end
   row['test.exposure'] = test_exposure
-  all_user_csv_array << row
+  all_user_csv_array << row.to_hash
 end
 
 CSV.open("/mnt/data/corrections.5.22.2016/first_deployment_results_merged_with_survey_spillover_05_22_2016.csv", "wb") do |csv|
-  @data.each do |hash|
+  csv << all_user_csv_array.first.keys
+  all_user_csv_array.each do |hash|
     csv << hash.values
   end
 end
